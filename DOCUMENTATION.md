@@ -783,19 +783,36 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Run the server
+# Run the development server
 python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
+
+### Production Multi-Worker Deployment (Gunicorn + Uvicorn ASGI Workers)
+In production environments (Docker, Linux VPS, Kubernetes, Render, Railway), RasoiLink pairs **Gunicorn** as the master process supervisor with high-throughput **Uvicorn** ASGI worker processes:
+
+```bash
+# Start Gunicorn using the production configuration
+gunicorn -c gunicorn_conf.py main:app
+
+# Or start with explicit CLI flags (4 concurrent workers)
+gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+```
+
+`gunicorn_conf.py` features:
+- Dynamic CPU worker auto-scaling: `(2 * CPU + 1)` workers, overridable by `$WEB_CONCURRENCY` or `$WORKERS`.
+- Async ASGI execution via `uvicorn.workers.UvicornWorker`.
+- Graceful 30-second shutdown timeout for zero-downtime rolling deploys.
+- `preload_app = False` ensuring SQLite WAL connections are cleanly initialized per worker process.
 
 ### Docker Deployment
 ```bash
 docker-compose up --build -d
 ```
-The application will be live at `http://localhost:8000/`.
+The Docker container is pre-configured with multi-worker Gunicorn and live at `http://localhost:8000/`.
 
 ### Cloud Deployment (Render / Railway)
-- **Render**: Connect repository (`https://github.com/akshdeepsingh7/RasoiLink`). Set build command `pip install -r requirements.txt` and start command `uvicorn main:app --host 0.0.0.0 --port $PORT`. Add `GROQ_API_KEY` under Environment Variables.
-- **Railway**: Connect repository (`https://github.com/akshdeepsingh7/RasoiLink`). Railway automatically detects `Procfile` and `requirements.txt`.
+- **Render**: Connect repository (`https://github.com/akshdeepsingh7/RasoiLink`). Set build command `pip install -r requirements.txt` and start command `gunicorn -c gunicorn_conf.py main:app`. Add `GROQ_API_KEY` under Environment Variables.
+- **Railway**: Connect repository (`https://github.com/akshdeepsingh7/RasoiLink`). Railway automatically detects `Procfile` (`gunicorn -c gunicorn_conf.py main:app`) and `requirements.txt`.
 
 ---
 

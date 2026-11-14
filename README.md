@@ -382,8 +382,19 @@ cp .env.example .env
 *(Optional)* Add your `GROQ_API_KEY` in `.env`. If left empty, the application uses its built-in rule-based fallback with zero configuration needed.
 
 ### 3. Run the Server
+
+#### A. Local Development (Uvicorn Live-Reload)
 ```bash
 python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+#### B. Production Multi-Worker Mode (Gunicorn + Uvicorn ASGI Workers)
+```bash
+# Production server using optimized gunicorn_conf.py
+gunicorn -c gunicorn_conf.py main:app
+
+# Or explicit CLI flags (4 concurrent workers)
+gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 ```
 
 Open your browser:
@@ -397,7 +408,7 @@ Open your browser:
 
 ## Docker Deployment
 
-Run RasoiLink in a single command with Docker:
+Run RasoiLink in a single command with Docker (pre-configured with multi-worker Gunicorn):
 
 ```bash
 docker-compose up --build -d
@@ -413,12 +424,12 @@ The application will be live at `http://localhost:8000/`.
 2. Connect your GitHub repository.
 3. Render automatically detects `render.yaml` or use:
    - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
+   - **Start Command:** `gunicorn -c gunicorn_conf.py main:app`
 4. Add `GROQ_API_KEY` under Environment Variables.
 
 ### Deploy to Railway
 1. Create a new project on [Railway](https://railway.app/).
-2. Deploy from GitHub repo. Railway automatically detects `Procfile` and `requirements.txt`.
+2. Deploy from GitHub repo. Railway automatically detects `Procfile` (`gunicorn -c gunicorn_conf.py main:app`) and `requirements.txt`.
 
 ---
 
