@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  rasoilink:
+    build: .
+    container_name: rasoilink-app
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.3-70b-versatile}
+    volumes:
+      - rasoilink-data:/app
+    restart: unless-stopped
+
+volumes:
+  rasoilink-data:
