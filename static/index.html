@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#c2410c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>RasoiLink — Artisanal Indian Dining & Direct Ordering</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts & Custom CSS -->
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23ea580c%22 stroke-width=%222%22><path d=%22M12 2a5 5 0 0 0-5 5v3H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-2V7a5 5 0 0 0-5-5z%22/></svg>">
+
+  <!-- Lucide Vector Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-[#FAF8F5] text-stone-900 font-sans antialiased min-h-screen pb-32 sm:pb-24 selection:bg-brand-600 selection:text-white">
+
+  <!-- Confetti Container -->
+  <div class="confetti-container" id="confettiContainer"></div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Table Detected Banner -->
+  <div id="tableBanner" class="hidden bg-stone-900 border-b border-stone-800 px-3.5 py-2 text-xs font-semibold text-stone-200 flex items-center justify-between sticky top-0 z-50 shadow-md transition-all duration-300">
+    <div class="flex items-center gap-2">
+      <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+      <span>Table QR Detected: Dine-In Active</span>
+    </div>
+    <span id="tableBannerBadge" class="bg-brand-600 text-white px-3 py-0.5 rounded-full text-xs font-bold tracking-wide">Table 5</span>
+  </div>
+
+  <!-- App Header (Ultra-Responsive Mobile & Desktop Navigation) -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-white/95 border-b border-stone-200/80 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between transition-all">
+    <a href="/" class="flex items-center gap-2.5 sm:gap-3 group flex-shrink-0">
+      <div class="w-8 h-8 sm:w-9 sm:h-9 bg-stone-900 text-brand-500 rounded-xl flex items-center justify-center shadow-sm group-hover:bg-brand-600 group-hover:text-white transition-all duration-300">
+        <i data-lucide="utensils-crossed" class="w-4 h-4"></i>
+      </div>
+      <div>
+        <div class="text-sm sm:text-base font-extrabold tracking-tight text-stone-900 leading-tight">
+          Rasoi<span class="text-brand-600">Link</span>
+        </div>
+        <div class="text-[9px] sm:text-[10px] font-bold text-stone-500 tracking-wider flex items-center gap-1 uppercase">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <span class="truncate max-w-[85px] sm:max-w-none">Connaught Place</span>
+        </div>
+      </div>
+    </a>
+
+    <div class="flex items-center gap-1.5 sm:gap-2">
+      <!-- Bharat Mode Offline-First Badge -->
+      <div id="bharatModeBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-xs transition-all" title="Bharat Offline-First Sync">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="hidden sm:inline">Bharat</span> <span>Online</span>
+      </div>
+
+      <!-- Regional Language Switcher Pill -->
+      <div class="relative inline-block">
+        <button onclick="toggleLanguageDropdown()" id="btnHeaderLanguage" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200 rounded-full text-xs font-bold transition-all shadow-xs" title="Select regional language">
+          <i data-lucide="languages" class="w-3.5 h-3.5 text-stone-600"></i>
+          <span id="currentLangLabel">English</span>
+          <i data-lucide="chevron-down" class="w-3 h-3 text-stone-400"></i>
+        </button>
+        <!-- Language Dropdown -->
+        <div id="languageDropdown" class="hidden absolute right-0 mt-1.5 w-36 bg-white border border-stone-200 rounded-2xl shadow-xl py-1.5 z-50 text-xs font-bold divide-y divide-stone-100">
+          <button onclick="selectLanguage('en')" class="w-full text-left px-3 py-1.5 hover:bg-orange-50 hover:text-brand-700 flex items-center justify-between"><span>English</span><span class="text-[10px] text-stone-400">EN</span></button>
+          <button onclick="selectLanguage('hi')" class="w-full text-left px-3 py-1.5 hover:bg-orange-50 hover:text-brand-700 flex items-center justify-between"><span>हिन्दी</span><span class="text-[10px] text-stone-400">HI</span></button>
+          <button onclick="selectLanguage('hinglish')" class="w-full text-left px-3 py-1.5 hover:bg-orange-50 hover:text-brand-700 flex items-center justify-between"><span>हिंग्लिश</span><span class="text-[10px] text-stone-400">HN</span></button>
+          <button onclick="selectLanguage('gu')" class="w-full text-left px-3 py-1.5 hover:bg-orange-50 hover:text-brand-700 flex items-center justify-between"><span>ગુજરાતી</span><span class="text-[10px] text-stone-400">GU</span></button>
+          <button onclick="selectLanguage('mr')" class="w-full text-left px-3 py-1.5 hover:bg-orange-50 hover:text-brand-700 flex items-center justify-between"><span>मराठी</span><span class="text-[10px] text-stone-400">MR</span></button>
+          <button onclick="selectLanguage('ta')" class="w-full text-left px-3 py-1.5 hover:bg-orange-50 hover:text-brand-700 flex items-center justify-between"><span>தமிழ்</span><span class="text-[10px] text-stone-400">TA</span></button>
+          <button onclick="selectLanguage('bn')" class="w-full text-left px-3 py-1.5 hover:bg-orange-50 hover:text-brand-700 flex items-center justify-between"><span>বাংলা</span><span class="text-[10px] text-stone-400">BN</span></button>
+          <button onclick="selectLanguage('te')" class="w-full text-left px-3 py-1.5 hover:bg-orange-50 hover:text-brand-700 flex items-center justify-between"><span>తెలుగు</span><span class="text-[10px] text-stone-400">TE</span></button>
+        </div>
+      </div>
+
+      <!-- Voice Assistant Mic Button -->
+      <button onclick="window.toggleVoiceAssistant()" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 hover:bg-brand-600 text-brand-700 hover:text-white border border-orange-200 transition-all shadow-xs" title="Voice Search & Ordering">
+        <i data-lucide="mic" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Restaurant Outlet Switcher Pill -->
+      <button onclick="openRestaurantSelectorModal()" id="btnHeaderOutlet" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-brand-800 border border-orange-200 rounded-full text-xs font-bold transition-all duration-200 shadow-sm" title="Change restaurant location">
+        <i data-lucide="building-2" class="w-3.5 h-3.5 text-brand-600 flex-shrink-0"></i>
+        <span id="headerOutletName" class="hidden xs:inline truncate max-w-[70px] sm:max-w-[120px]">Connaught Place</span>
+        <span class="text-[9px] bg-brand-600 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase ml-0.5 hidden xs:inline">Switch</span>
+      </button>
+
+      <!-- Desktop Nav Buttons (Mobile has dedicated Bottom Navigation Bar) -->
+      <button onclick="openOrdersHistoryModal()" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200 rounded-full text-xs font-bold transition-all duration-200" title="View past orders & re-order">
+        <i data-lucide="history" class="w-3.5 h-3.5 text-stone-600"></i>
+        <span data-i18n="my_orders">My Orders</span>
+      </button>
+      <a href="/landing" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200 rounded-full text-xs font-bold transition-all duration-200">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-brand-500"></i>
+        <span>Why Us</span>
+      </a>
+      <button onclick="openAdminModal()" id="btnHeaderAdminLogin" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-stone-100 hover:bg-stone-900 text-stone-700 hover:text-white border border-stone-200 rounded-full text-xs font-bold transition-all duration-200" title="Operations, KDS & Store Settings">
+        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-brand-600"></i>
+        <span id="headerAdminLabel" class="hidden sm:inline" data-i18n="staff_login">Staff</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="max-w-3xl mx-auto px-4 space-y-4 pt-3">
+    <!-- Clean Dynamic Store Profile & Location Card -->
+    <section class="bg-white border border-stone-200/90 rounded-3xl p-5 sm:p-6 shadow-sm space-y-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="openRestaurantSelectorModal()" id="storeLocationBtn" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-orange-100 hover:bg-orange-200 text-brand-800 border border-orange-200 transition-all cursor-pointer shadow-sm group" title="Click to switch restaurant outlet">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-600"></i>
+              <span id="storeLocationName">Connaught Place, New Delhi</span>
+              <span class="text-[9px] bg-brand-600 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase ml-1 group-hover:bg-brand-700">Change</span>
+            </button>
+            <span class="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold">
+              <i data-lucide="star" class="w-3.5 h-3.5 text-amber-500 fill-amber-500"></i>
+              <span id="storeRating">4.9 (1,240+ reviews)</span>
+            </span>
+            <span class="inline-flex items-center gap-1.5 bg-stone-100 border border-stone-200 text-stone-700 px-3 py-1 rounded-full text-xs font-semibold">
+              <i data-lucide="clock" class="w-3.5 h-3.5 text-stone-500"></i>
+              <span id="storeHours">10:00 AM – 10:30 PM Daily</span>
+            </span>
+          </div>
+          <h1 id="storeTitle" class="text-2xl sm:text-3xl font-black tracking-tight text-stone-900 pt-1" data-i18n="store_title">
+            RasoiLink Kitchen & Chai Bar
+          </h1>
+          <p id="storeTagline" class="text-xs sm:text-sm font-semibold text-brand-700" data-i18n="tagline">
+            Artisanal Indian Bites & Handcrafted Tapri Brews
+          </p>
+          <p id="storeDescription" class="text-xs text-stone-600 max-w-2xl leading-relaxed pt-0.5">
+            Authentic cutting chai, butter-loaded pav bhaji, hand-rolled parathas, and slow-cooked dum biryani prepared fresh to order.
+          </p>
+
+          <!-- SafeKitchen Verified Animated Checklist Container -->
+          <div id="safekitchenContainer" class="safekitchen-card mt-3 p-3 sm:p-3.5 shadow-2xs transition-all duration-300">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-2 mb-2 border-b border-emerald-200/60">
+              <div class="flex items-center gap-1.5">
+                <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-emerald-100 text-[#22C55E]">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="m9 12 2 2 4-4"/>
+                  </svg>
+                </span>
+                <span class="text-[11px] sm:text-xs font-extrabold uppercase tracking-wide text-emerald-950">SafeKitchen Verified Protocol</span>
+                <span id="safekitchenFssai" class="text-[10px] text-emerald-700 font-semibold hidden sm:inline">&middot; FSSAI Audited</span>
+              </div>
+              
+              <!-- SafeKitchen Verified Trust Score Badge -->
+              <div id="safekitchenBadge" class="safekitchen-trust-badge whitespace-nowrap flex-shrink-0">
+                <span class="w-2 h-2 rounded-full bg-[#22C55E] flex-shrink-0 animate-pulse"></span>
+                <span>SafeKitchen Verified &middot; Trust Score <strong id="safekitchenTrustScore" class="font-black text-[#15803d]">--</strong>/100</span>
+              </div>
+            </div>
+
+            <!-- The 9 SafeKitchen Checklist Items -->
+            <div id="safekitchenChecklist" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-3 gap-y-1.5">
+              <!-- Populated via safekitchen.js with 300ms sequential animation & real-time safety data -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="storeAnnouncementBanner" class="bg-amber-50 border border-amber-200/80 rounded-2xl px-3.5 py-2 text-xs text-amber-900 font-medium flex items-center gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0"></i>
+        <span id="storeAnnouncementText">Welcome! Order direct from table, pickup counter, or local doorstep delivery.</span>
+      </div>
+    </section>
+
+    <!-- Group Hunger Network Banner -->
+    <section class="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border-2 border-amber-400/50 hover:border-amber-500 rounded-3xl p-4 sm:p-5 shadow-xs transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="w-7 h-7 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-xs">
+            <i data-lucide="users-round" class="w-4 h-4"></i>
+          </span>
+          <span class="text-xs font-black text-amber-900 uppercase tracking-wider" data-i18n="group_hunger_title">Group Hunger Network</span>
+          <span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">Save up to 25%</span>
+        </div>
+        <p class="text-xs text-stone-700 font-medium leading-relaxed" data-i18n="group_hunger_subtitle">
+          Ordering from College Hostel, Office Tech Park, or Society? Combine food orders with friends to unlock tiered group discounts & zero delivery fee!
+        </p>
+      </div>
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <button onclick="openGroupHungerModal()" class="flex-1 sm:flex-none px-4 py-2.5 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-extrabold text-xs rounded-2xl shadow-sm transition-all flex items-center justify-center gap-1.5 whitespace-nowrap">
+          <i data-lucide="users" class="w-3.5 h-3.5"></i>
+          <span data-i18n="create_pool">Join / Create Pool</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Dedicated Fulfillment Channel Hub (Dine-In, Takeaway, Delivery) -->
+    <section class="space-y-3">
+      <!-- 3 Primary Channel Cards -->
+      <div class="grid grid-cols-3 gap-2">
+        <button id="channelBtnDineIn" class="channel-card p-3 rounded-2xl border-2 border-brand-500 bg-white text-left shadow-sm transition-all flex flex-col justify-between active ring-2 ring-brand-500/20" onclick="setOrderMode('DINE_IN')">
+          <div class="flex items-center justify-between w-full mb-1">
+            <span class="w-8 h-8 rounded-xl bg-orange-100 text-brand-600 flex items-center justify-center">
+              <i data-lucide="utensils" class="w-4 h-4"></i>
+            </span>
+            <span class="channel-dot w-2 h-2 rounded-full bg-emerald-500"></span>
+          </div>
+          <div>
+            <div class="text-xs sm:text-sm font-black text-stone-900 tracking-tight" data-i18n="dine_in">Dine-In</div>
+            <div class="text-[10px] text-stone-500 font-medium" data-i18n="table_hint">Table & Reservation</div>
+          </div>
+        </button>
+
+        <button id="channelBtnTakeaway" class="channel-card p-3 rounded-2xl border-2 border-stone-200 bg-white hover:border-stone-300 text-left shadow-sm transition-all flex flex-col justify-between" onclick="setOrderMode('TAKEAWAY')">
+          <div class="flex items-center justify-between w-full mb-1">
+            <span class="w-8 h-8 rounded-xl bg-stone-100 text-stone-600 flex items-center justify-center">
+              <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+            </span>
+            <span class="channel-dot w-2 h-2 rounded-full bg-slate-300"></span>
+          </div>
+          <div>
+            <div class="text-xs sm:text-sm font-black text-stone-900 tracking-tight" data-i18n="takeaway">Takeaway</div>
+            <div class="text-[10px] text-stone-500 font-medium" data-i18n="takeaway_hint">Counter Pickup</div>
+          </div>
+        </button>
+
+        <button id="channelBtnDelivery" class="channel-card p-3 rounded-2xl border-2 border-stone-200 bg-white hover:border-stone-300 text-left shadow-sm transition-all flex flex-col justify-between" onclick="setOrderMode('DELIVERY')">
+          <div class="flex items-center justify-between w-full mb-1">
+            <span class="w-8 h-8 rounded-xl bg-stone-100 text-stone-600 flex items-center justify-center">
+              <i data-lucide="truck" class="w-4 h-4"></i>
+            </span>
+            <span class="channel-dot w-2 h-2 rounded-full bg-slate-300"></span>
+          </div>
+          <div>
+            <div class="text-xs sm:text-sm font-black text-stone-900 tracking-tight" data-i18n="delivery">Delivery</div>
+            <div class="text-[10px] text-stone-500 font-medium" data-i18n="delivery_hint">Doorstep (+₹30)</div>
+          </div>
+        </button>
+      </div>
+
+      <!-- Channel 1: Dedicated Dine-In Panel (Now vs Scheduled Table Reservation) -->
+      <div id="channelPanelDineIn" class="bg-white border border-stone-200 rounded-3xl p-4 shadow-sm space-y-3.5 transition-all">
+        <div class="flex items-center justify-between border-b border-stone-100 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 bg-brand-50 border border-brand-200 text-brand-700 rounded-full text-[10px] font-black uppercase tracking-wider">DINE-IN CHANNEL</span>
+            <span class="text-xs font-bold text-stone-700">Cafe Tables & Dining Experience</span>
+          </div>
+          <span class="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
+            <i data-lucide="sparkles" class="w-3 h-3"></i>
+            <span>Table Service</span>
+          </span>
+        </div>
+
+        <!-- Dine-In Timing Toggle -->
+        <div class="grid grid-cols-2 gap-2 bg-stone-100 p-1 rounded-2xl border border-stone-200/60">
+          <button id="btnDineInNow" onclick="setChannelTiming('NOW')" class="py-2 px-3 rounded-xl text-xs font-bold transition-all bg-brand-600 text-white shadow-sm flex items-center justify-center gap-1.5">
+            <i data-lucide="utensils" class="w-3.5 h-3.5"></i>
+            <span>Dine-In Now (At Table)</span>
+          </button>
+          <button id="btnDineInSchedule" onclick="setChannelTiming('SCHEDULED')" class="py-2 px-3 rounded-xl text-xs font-bold transition-all text-stone-600 hover:text-stone-900 flex items-center justify-center gap-1.5">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+            <span>Schedule Table Reservation</span>
+          </button>
+        </div>
+
+        <!-- Dine-In Immediate View: Table Selection -->
+        <div id="dineInImmediateView" class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-stone-800">Select Your Table Number:</span>
+            <span class="text-[11px] text-stone-500 font-medium">Or scan QR on table</span>
+          </div>
+          <div class="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
+            <button class="table-chip py-1.5 rounded-xl border border-stone-200 bg-stone-50 text-xs font-bold text-stone-700 hover:border-brand-500" onclick="selectTableNumber('1')">1</button>
+            <button class="table-chip py-1.5 rounded-xl border border-stone-200 bg-stone-50 text-xs font-bold text-stone-700 hover:border-brand-500" onclick="selectTableNumber('2')">2</button>
+            <button class="table-chip py-1.5 rounded-xl border border-stone-200 bg-stone-50 text-xs font-bold text-stone-700 hover:border-brand-500" onclick="selectTableNumber('3')">3</button>
+            <button class="table-chip py-1.5 rounded-xl border border-stone-200 bg-stone-50 text-xs font-bold text-stone-700 hover:border-brand-500" onclick="selectTableNumber('4')">4</button>
+            <button class="table-chip py-1.5 rounded-xl border-2 border-brand-500 bg-brand-50 text-xs font-black text-brand-700" onclick="selectTableNumber('5')">5</button>
+            <button class="table-chip py-1.5 rounded-xl border border-stone-200 bg-stone-50 text-xs font-bold text-stone-700 hover:border-brand-500" onclick="selectTableNumber('6')">6</button>
+            <button class="table-chip py-1.5 rounded-xl border border-stone-200 bg-stone-50 text-xs font-bold text-stone-700 hover:border-brand-500" onclick="selectTableNumber('7')">7</button>
+            <button class="table-chip py-1.5 rounded-xl border border-stone-200 bg-stone-50 text-xs font-bold text-stone-700 hover:border-brand-500" onclick="selectTableNumber('8')">8</button>
+            <button class="table-chip py-1.5 rounded-xl border border-stone-200 bg-stone-50 text-xs font-bold text-stone-700 hover:border-brand-500" onclick="selectTableNumber('9')">9</button>
+            <button class="table-chip py-1.5 rounded-xl border border-stone-200 bg-stone-50 text-xs font-bold text-stone-700 hover:border-brand-500" onclick="selectTableNumber('10')">10</button>
+          </div>
+        </div>
+
+        <!-- Dine-In Scheduled View: Guest Count & Table Arrival Window -->
+        <div id="dineInScheduledView" class="hidden space-y-3 pt-1 border-t border-stone-100">
+          <div class="space-y-1.5">
+            <span class="text-xs font-bold text-stone-800">Party Size / Guest Count:</span>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button class="party-size-chip py-1.5 rounded-xl border border-stone-200 bg-stone-50 text-xs font-bold text-stone-700 hover:border-brand-500" onclick="setPartySize(1)">1 Guest</button>
+              <button class="party-size-chip py-1.5 rounded-xl border-2 border-brand-500 bg-brand-50 text-xs font-black text-brand-700" onclick="setPartySize(2)">2 Guests</button>
+              <button class="party-size-chip py-1.5 rounded-xl border border-stone-200 bg-stone-50 text-xs font-bold text-stone-700 hover:border-brand-500" onclick="setPartySize(4)">4 Guests</button>
+              <button class="party-size-chip py-1.5 rounded-xl border border-stone-200 bg-stone-50 text-xs font-bold text-stone-700 hover:border-brand-500" onclick="setPartySize(6)">6+ Guests</button>
+            </div>
+          </div>
+          <!-- Slot selection rendered via common component -->
+        </div>
+      </div>
+
+      <!-- Channel 2: Dedicated Takeaway Panel (Now vs Scheduled Pickup) -->
+      <div id="channelPanelTakeaway" class="hidden bg-white border border-stone-200 rounded-3xl p-4 shadow-sm space-y-3.5 transition-all">
+        <div class="flex items-center justify-between border-b border-stone-100 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 bg-sky-50 border border-sky-200 text-sky-700 rounded-full text-[10px] font-black uppercase tracking-wider">TAKEAWAY CHANNEL</span>
+            <span class="text-xs font-bold text-stone-700">Express Counter Collection</span>
+          </div>
+          <span class="text-[11px] text-sky-700 font-bold flex items-center gap-1">
+            <i data-lucide="check" class="w-3 h-3"></i>
+            <span>Dispatch Counter #1</span>
+          </span>
+        </div>
+
+        <!-- Takeaway Timing Toggle -->
+        <div class="grid grid-cols-2 gap-2 bg-stone-100 p-1 rounded-2xl border border-stone-200/60">
+          <button id="btnTakeawayNow" onclick="setChannelTiming('NOW')" class="py-2 px-3 rounded-xl text-xs font-bold transition-all bg-sky-600 text-white shadow-sm flex items-center justify-center gap-1.5">
+            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+            <span>Pickup Now (~15-20 Mins)</span>
+          </button>
+          <button id="btnTakeawaySchedule" onclick="setChannelTiming('SCHEDULED')" class="py-2 px-3 rounded-xl text-xs font-bold transition-all text-stone-600 hover:text-stone-900 flex items-center justify-center gap-1.5">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+            <span>Schedule Pickup Slot</span>
+          </button>
+        </div>
+
+        <!-- Takeaway Immediate View Info -->
+        <div id="takeawayImmediateView" class="bg-stone-50 rounded-2xl p-3 text-xs text-stone-600 space-y-1">
+          <div class="font-bold text-stone-900 flex items-center gap-1.5">
+            <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <span>Immediate Counter Preparation</span>
+          </div>
+          <p class="text-[11px] text-stone-500 leading-relaxed">
+            Your dishes are immediately transmitted to the kitchen cookline. Once ready, pick up at Counter #1 by showing your order code.
+          </p>
+        </div>
+
+        <!-- Takeaway Scheduled View Info -->
+        <div id="takeawayScheduledView" class="hidden bg-sky-50/70 border border-sky-100 rounded-2xl p-3 text-xs text-sky-900 space-y-1">
+          <div class="font-bold flex items-center gap-1.5">
+            <i data-lucide="calendar-check" class="w-3.5 h-3.5 text-sky-600"></i>
+            <span>Scheduled Express Counter Pickup</span>
+          </div>
+          <p class="text-[11px] text-sky-700 leading-relaxed">
+            Your food is freshly cooked and packed in thermal carry bags right at your designated 30-minute arrival slot.
+          </p>
+        </div>
+      </div>
+
+      <!-- Channel 3: Dedicated Delivery Panel (Now vs Scheduled Delivery) -->
+      <div id="channelPanelDelivery" class="hidden bg-white border border-stone-200 rounded-3xl p-4 shadow-sm space-y-3.5 transition-all">
+        <div class="flex items-center justify-between border-b border-stone-100 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 bg-purple-50 border border-purple-200 text-purple-700 rounded-full text-[10px] font-black uppercase tracking-wider">DELIVERY CHANNEL</span>
+            <span class="text-xs font-bold text-stone-700">Direct Doorstep Drop-Off</span>
+          </div>
+          <span class="text-[11px] text-purple-700 font-bold flex items-center gap-1">
+            <i data-lucide="map-pin" class="w-3 h-3"></i>
+            <span>+₹30 Flat Delivery</span>
+          </span>
+        </div>
+
+        <!-- Delivery Timing Toggle -->
+        <div class="grid grid-cols-2 gap-2 bg-stone-100 p-1 rounded-2xl border border-stone-200/60">
+          <button id="btnDeliveryNow" onclick="setChannelTiming('NOW')" class="py-2 px-3 rounded-xl text-xs font-bold transition-all bg-purple-600 text-white shadow-sm flex items-center justify-center gap-1.5">
+            <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+            <span>Deliver ASAP (~35-45 Mins)</span>
+          </button>
+          <button id="btnDeliverySchedule" onclick="setChannelTiming('SCHEDULED')" class="py-2 px-3 rounded-xl text-xs font-bold transition-all text-stone-600 hover:text-stone-900 flex items-center justify-center gap-1.5">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+            <span>Schedule Delivery Window</span>
+          </button>
+        </div>
+
+        <!-- Quick Address Input on storefront with Use Current Location -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-bold text-stone-800">Delivery Address:</label>
+            <button type="button" onclick="detectUserLocation()" class="text-[11px] font-bold text-brand-700 hover:text-brand-800 inline-flex items-center gap-1 bg-orange-50 hover:bg-orange-100 border border-orange-200 px-2.5 py-1 rounded-xl transition-all shadow-xs">
+              <i data-lucide="crosshair" class="w-3.5 h-3.5 text-brand-600"></i>
+              <span>Use Current Location</span>
+            </button>
+          </div>
+          <input type="text" id="quickDeliveryAddress" placeholder="Enter Flat / Street / Landmark (e.g. Flat 402, Barakhamba Road)" oninput="syncDeliveryAddress(this.value)" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500">
+          <div class="flex items-center gap-1.5 flex-wrap pt-0.5">
+            <span class="text-[10px] font-bold text-stone-400 uppercase">Local Picks:</span>
+            <button type="button" onclick="setQuickLocalAddress('Connaught Place, Inner Circle')" class="text-[10px] font-bold text-stone-600 bg-stone-100 hover:bg-purple-100 hover:text-purple-700 border border-stone-200 px-2 py-0.5 rounded-full transition-all">Connaught Place</button>
+            <button type="button" onclick="setQuickLocalAddress('Barakhamba Road')" class="text-[10px] font-bold text-stone-600 bg-stone-100 hover:bg-purple-100 hover:text-purple-700 border border-stone-200 px-2 py-0.5 rounded-full transition-all">Barakhamba Road</button>
+            <button type="button" onclick="setQuickLocalAddress('Janpath')" class="text-[10px] font-bold text-stone-600 bg-stone-100 hover:bg-purple-100 hover:text-purple-700 border border-stone-200 px-2 py-0.5 rounded-full transition-all">Janpath</button>
+            <button type="button" onclick="setQuickLocalAddress('Kasturba Gandhi Marg')" class="text-[10px] font-bold text-stone-600 bg-stone-100 hover:bg-purple-100 hover:text-purple-700 border border-stone-200 px-2 py-0.5 rounded-full transition-all">KG Marg</button>
+          </div>
+        </div>
+
+        <!-- Delivery Scheduled View Info -->
+        <div id="deliveryScheduledView" class="hidden bg-purple-50/70 border border-purple-100 rounded-2xl p-3 text-xs text-purple-900 space-y-1">
+          <div class="font-bold flex items-center gap-1.5">
+            <i data-lucide="calendar-clock" class="w-3.5 h-3.5 text-purple-600"></i>
+            <span>Scheduled Doorstep Drop-Off</span>
+          </div>
+          <p class="text-[11px] text-purple-700 leading-relaxed">
+            Our private rider is dispatched to deliver to your doorstep precisely within your selected 30-minute delivery window.
+          </p>
+        </div>
+      </div>
+
+      <!-- Advance Multi-Day 30-Minute Capacity Slot Picker (Activated when Scheduling ANY channel) -->
+      <section id="slotPickerSection" class="hidden bg-white border-2 border-brand-300 rounded-3xl p-4 shadow-md space-y-3 transition-all duration-300">
+        <div class="flex items-center justify-between border-b border-stone-100 pb-2">
+          <div class="text-xs font-black text-stone-900 uppercase tracking-wide flex items-center gap-2">
+            <i data-lucide="calendar" class="w-4 h-4 text-brand-600"></i>
+            <span id="slotPickerHeader">Select Advance Booking Slot:</span>
+          </div>
+          <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Capacity Guard Protected</span>
+        </div>
+        <div>
+          <div class="text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-1.5">Step 1: Choose Date</div>
+          <div id="slotDatesList" class="flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+        </div>
+        <div>
+          <div class="text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+            <span>Step 2: Choose 30-Minute Window</span>
+            <span class="text-[10px] text-stone-400 font-normal">Max 8 orders per slot</span>
+          </div>
+          <div id="slotsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-1"></div>
+        </div>
+      </section>
+    </section>
+
+    <!-- Dynamic Promo Codes Strip with Loyalty & Repeat Rewards -->
+    <section class="flex gap-2 overflow-x-auto no-scrollbar py-0.5">
+      <div onclick="applyPromoCode('WELCOME50')" class="flex-shrink-0 cursor-pointer bg-white hover:bg-orange-50 border border-dashed border-stone-300 hover:border-brand-500 text-stone-800 px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm">
+        <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+        <span>1st Order: <strong class="text-brand-700">WELCOME50</strong> (₹50 OFF)</span>
+      </div>
+      <div onclick="applyPromoCode('REPEAT15')" class="flex-shrink-0 cursor-pointer bg-white hover:bg-emerald-50 border border-dashed border-stone-300 hover:border-emerald-500 text-stone-800 px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span>Repeat Diner: <strong class="text-emerald-700">REPEAT15</strong> (15% OFF)</span>
+      </div>
+      <div onclick="applyPromoCode('REGULAR20')" class="flex-shrink-0 cursor-pointer bg-white hover:bg-sky-50 border border-dashed border-stone-300 hover:border-sky-500 text-stone-800 px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm">
+        <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+        <span>Regular Club: <strong class="text-sky-700">REGULAR20</strong> (20% OFF)</span>
+      </div>
+      <div onclick="applyPromoCode('HAPPY20')" class="flex-shrink-0 cursor-pointer bg-white hover:bg-amber-50 border border-dashed border-stone-300 hover:border-amber-500 text-stone-800 px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm">
+        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+        <span>Happy Hours: <strong class="text-amber-700">HAPPY20</strong> (20% OFF)</span>
+      </div>
+    </section>
+
+    <!-- AI Waste-to-Profit Flash Deals Section -->
+    <section id="ecoSaverDealsSection" class="bg-gradient-to-br from-emerald-50 via-teal-50 to-stone-50 border-2 border-emerald-500/40 rounded-3xl p-4 sm:p-5 shadow-xs space-y-3 hidden">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="space-y-0.5">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+              <i data-lucide="leaf" class="w-3.5 h-3.5"></i>
+            </span>
+            <h3 class="text-sm sm:text-base font-black text-emerald-950 tracking-tight" data-i18n="eco_deals_title">🌱 AI Waste-to-Profit Flash Deals</h3>
+          </div>
+          <p class="text-xs text-emerald-800 font-medium" data-i18n="eco_deals_subtitle">
+            Rescue fresh surplus portions before kitchen shift ends & unlock 25%–50% flash savings!
+          </p>
+        </div>
+        <div id="ecoImpactTicker" class="text-xs"></div>
+      </div>
+
+      <!-- Horizontal Scrollable Cards -->
+      <div id="ecoSaverDealsCards" class="flex gap-3 overflow-x-auto pb-2 no-scrollbar pt-1">
+        <!-- Injected by waste-profit.js -->
+      </div>
+    </section>
+
+    <!-- Search & Quick Filters -->
+    <section class="space-y-2.5">
+      <div class="relative">
+        <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400"></i>
+        <input type="text" id="searchInput" data-i18n="search_placeholder" placeholder="Search chai, pav bhaji, parathas, biryani..." oninput="handleSearchInput(this.value)" class="w-full bg-white border border-stone-200 rounded-2xl pl-10 pr-20 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all shadow-sm">
+        <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+          <button type="button" onclick="window.toggleVoiceAssistant()" class="w-6 h-6 rounded-full bg-orange-100 hover:bg-brand-600 text-brand-700 hover:text-white flex items-center justify-center text-xs transition-all shadow-2xs" title="Speak to Search or Order">
+            <i data-lucide="mic" class="w-3.5 h-3.5"></i>
+          </button>
+          <button id="searchClearBtn" onclick="clearSearch()" class="hidden w-5 h-5 bg-stone-200 hover:bg-stone-300 text-stone-600 rounded-full text-xs flex items-center justify-center font-bold">
+            <i data-lucide="x" class="w-3 h-3"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Lifestyle Filter Chips -->
+      <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+        <button class="quick-chip-pill flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-stone-900 text-white shadow-sm" data-filter="all" onclick="applyQuickFilter('all')">All Dishes</button>
+        <button class="quick-chip-pill flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-white border border-stone-200 text-stone-600 hover:border-brand-500" data-filter="bestseller" onclick="applyQuickFilter('bestseller')">Best Sellers</button>
+        <button class="quick-chip-pill flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-white border border-stone-200 text-stone-600 hover:border-brand-500" data-filter="veg" onclick="applyQuickFilter('veg')">Vegetarian</button>
+        <button class="quick-chip-pill flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-white border border-stone-200 text-stone-600 hover:border-brand-500" data-filter="non-veg" onclick="applyQuickFilter('non-veg')">Non-Veg</button>
+        <button class="quick-chip-pill flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-white border border-stone-200 text-stone-600 hover:border-brand-500 flex items-center gap-1" data-filter="favorites" onclick="applyQuickFilter('favorites')">
+          <i data-lucide="heart" class="w-3 h-3 text-rose-500 fill-rose-500"></i>
+          <span>Favorites</span>
+        </button>
+        <button class="quick-chip-pill flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-white border border-stone-200 text-stone-600 hover:border-brand-500" data-filter="mild" onclick="applyQuickFilter('mild')">Mild Spices</button>
+        <button class="quick-chip-pill flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-white border border-stone-200 text-stone-600 hover:border-brand-500" data-filter="spicy" onclick="applyQuickFilter('spicy')">Spicy</button>
+        <button class="quick-chip-pill flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-white border border-stone-200 text-stone-600 hover:border-brand-500" data-filter="budget" onclick="applyQuickFilter('budget')">Under ₹100</button>
+        <button class="quick-chip-pill flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-white border border-stone-200 text-stone-600 hover:border-brand-500" data-filter="sweet" onclick="applyQuickFilter('sweet')">Desserts</button>
+      </div>
+    </section>
+
+    <!-- Sticky Category Pills -->
+    <div class="sticky top-[61px] z-30 bg-[#FAF8F5]/95 backdrop-blur-md py-2 -mx-4 px-4 border-b border-stone-200/60">
+      <div id="categoriesNav" class="flex gap-2 overflow-x-auto no-scrollbar"></div>
+    </div>
+
+    <!-- Menu Catalog Container -->
+    <main id="menuContainer" class="space-y-6 pt-2"></main>
+
+    <!-- Customer Reviews / Social Proof Strip -->
+    <section class="bg-white border border-stone-200/80 rounded-3xl p-5 sm:p-6 space-y-4 shadow-sm">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-extrabold text-stone-900 flex items-center gap-2">
+          <i data-lucide="message-square-quote" class="w-4 h-4 text-brand-600"></i>
+          <span>Customer Feedback</span>
+        </h3>
+        <span class="text-xs font-bold text-emerald-600 flex items-center gap-1">
+          <i data-lucide="star" class="w-3 h-3 text-amber-500 fill-amber-500"></i>
+          <span>4.9 / 5.0 Rating</span>
+        </span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div class="bg-stone-50 border border-stone-100 p-3.5 rounded-2xl space-y-1.5">
+          <div class="flex items-center gap-1 text-amber-500">
+            <i data-lucide="star" class="w-3 h-3 fill-amber-500"></i>
+            <i data-lucide="star" class="w-3 h-3 fill-amber-500"></i>
+            <i data-lucide="star" class="w-3 h-3 fill-amber-500"></i>
+            <i data-lucide="star" class="w-3 h-3 fill-amber-500"></i>
+            <i data-lucide="star" class="w-3 h-3 fill-amber-500"></i>
+          </div>
+          <p class="text-stone-700 italic font-medium leading-relaxed">
+            "The Kulhad Adrak Chai and Bombay Pav Bhaji are unmatched. Direct table ordering without waiting made our lunch rush seamless."
+          </p>
+          <div class="text-[11px] font-bold text-stone-900">— Rohan Malhotra, Connaught Place</div>
+        </div>
+        <div class="bg-stone-50 border border-stone-100 p-3.5 rounded-2xl space-y-1.5">
+          <div class="flex items-center gap-1 text-amber-500">
+            <i data-lucide="star" class="w-3 h-3 fill-amber-500"></i>
+            <i data-lucide="star" class="w-3 h-3 fill-amber-500"></i>
+            <i data-lucide="star" class="w-3 h-3 fill-amber-500"></i>
+            <i data-lucide="star" class="w-3 h-3 fill-amber-500"></i>
+            <i data-lucide="star" class="w-3 h-3 fill-amber-500"></i>
+          </div>
+          <p class="text-stone-700 italic font-medium leading-relaxed">
+            "Pre-scheduled advance lunch for our team. The order was freshly packaged at the counter right on schedule."
+          </p>
+          <div class="text-[11px] font-bold text-stone-900">— Ananya Verma, Rajiv Chowk</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Storefront Footer with Team TrueAddams Attribution & FSSAI Details -->
+    <footer class="pt-8 pb-4 text-center border-t border-dashed border-stone-200 text-stone-500 space-y-2">
+      <div class="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-stone-600">
+        <span class="flex items-center gap-1">
+          <i data-lucide="map-pin" class="w-3.5 h-3.5 text-stone-400"></i>
+          <span>Connaught Place, New Delhi</span>
+        </span>
+        <span>•</span>
+        <span class="flex items-center gap-1">
+          <i data-lucide="clock" class="w-3.5 h-3.5 text-stone-400"></i>
+          <span>8:00 AM – 11:30 PM Everyday</span>
+        </span>
+        <span>•</span>
+        <span class="flex items-center gap-1">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-stone-400"></i>
+          <span>FSSAI Lic. 10023011002345</span>
+        </span>
+      </div>
+
+      <div class="text-xs font-bold text-stone-800 pt-2">
+        Engineered for Local Indian Cafes by <a href="https://github.com/akshdeepsingh7/RasoiLink" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:underline">Team TrueAddams</a>
+      </div>
+      <div class="text-[11px] font-semibold text-stone-600">
+        <a href="https://github.com/akshdeepsingh7" target="_blank" rel="noopener noreferrer" class="text-stone-700 hover:underline">Akshdeep Singh</a> (Leader) • Paras Gupta • Prince Pratik • Akashdeep Singh
+      </div>
+      <div class="text-[10px] text-stone-400">
+        Direct Mobile Ordering • Real-Time KDS • Groq AI Concierge • <a href="https://github.com/akshdeepsingh7/RasoiLink" target="_blank" rel="noopener noreferrer" class="hover:text-stone-600 underline">GitHub</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Floating Cart Bar (Above Mobile Bottom Nav on Phones) -->
+  <div id="bottomCartBar" onclick="openCartDrawer()" class="fixed bottom-[68px] sm:bottom-4 left-3 right-3 sm:left-4 sm:right-4 max-w-xl mx-auto z-40 bg-stone-900 text-white rounded-2xl p-3 px-4 sm:px-5 flex items-center justify-between shadow-2xl cursor-pointer transform translate-y-36 transition-transform duration-300">
+    <div class="flex items-center gap-2.5 sm:gap-3">
+      <span id="cartBadgeCount" class="bg-brand-600 text-white text-xs font-extrabold px-2.5 py-1 rounded-full shadow-sm">0 items</span>
+      <div>
+        <div id="cartBarTotal" class="text-sm sm:text-base font-extrabold tracking-tight">₹0</div>
+        <div class="text-[10px] text-stone-400 font-medium">Review order and checkout</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-1.5 text-xs font-bold text-amber-400">
+      <span>View Order Tray</span>
+      <i data-lucide="arrow-right" class="w-4 h-4"></i>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar (Modern Thumb-Friendly Mobile UX) -->
+  <nav class="md:hidden mobile-bottom-nav" aria-label="Mobile Navigation">
+    <button onclick="scrollToMenuCatalog()" id="mobNavBtnMenu" class="mobile-nav-btn active text-brand-600" title="Browse Menu">
+      <i data-lucide="utensils" class="w-5 h-5"></i>
+      <span>Menu</span>
+    </button>
+    <button onclick="focusSearchField()" id="mobNavBtnSearch" class="mobile-nav-btn" title="Search Dishes">
+      <i data-lucide="search" class="w-5 h-5"></i>
+      <span>Search</span>
+    </button>
+    <button onclick="openCartDrawer()" id="mobNavBtnCart" class="mobile-nav-btn relative" title="Order Tray">
+      <div class="relative">
+        <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+        <span id="mobileNavCartBadge" class="hidden mobile-nav-badge">0</span>
+      </div>
+      <span>Tray</span>
+    </button>
+    <button onclick="openOrdersHistoryModal()" id="mobNavBtnOrders" class="mobile-nav-btn" title="My Orders">
+      <i data-lucide="history" class="w-5 h-5"></i>
+      <span>Orders</span>
+    </button>
+    <button onclick="triggerAIChat()" id="mobNavBtnConcierge" class="mobile-nav-btn" title="AI Dining Assistant">
+      <i data-lucide="sparkles" class="w-5 h-5 text-amber-500"></i>
+      <span>AI Help</span>
+    </button>
+  </nav>
+
+  <!-- Modal Backdrop -->
+  <div id="modalBackdrop" class="fixed inset-0 bg-stone-950/60 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+  <!-- Dish Quick View Modal (Enhanced with Nutrition & Allergens) -->
+  <div id="dishModal" class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-white rounded-t-[28px] z-50 shadow-2xl overflow-hidden transform translate-y-full transition-transform duration-300 max-h-[88vh] flex flex-col">
+    <div class="bottom-sheet-handle"></div>
+    <button onclick="closeDishModal()" class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-stone-900/60 text-white flex items-center justify-center text-sm font-bold backdrop-blur-sm">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+    <div class="relative w-full h-48 sm:h-56 bg-stone-100 flex-shrink-0">
+      <img id="dishModalImg" src="" alt="Dish preview" class="w-full h-full object-cover">
+      <div class="absolute bottom-3 left-3 flex items-center gap-2 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold shadow-sm">
+        <span id="dishModalDiet" class="diet-icon veg"></span>
+        <span id="dishModalSpice" class="text-stone-700 font-bold">Mild</span>
+      </div>
+    </div>
+    <div class="p-5 overflow-y-auto space-y-3.5 flex-1">
+      <div class="flex items-start justify-between gap-2">
+        <h3 id="dishModalTitle" class="text-lg font-extrabold text-stone-900 leading-tight">Dish Name</h3>
+        <span id="dishModalPrice" class="text-xl font-extrabold text-brand-600">₹0</span>
+      </div>
+      <p id="dishModalDesc" class="text-xs text-stone-500 leading-relaxed font-medium"></p>
+      
+      <!-- Nutrition & Culinary Badges -->
+      <div class="bg-stone-50 border border-stone-200/80 rounded-xl p-3 grid grid-cols-3 gap-2 text-center text-xs font-semibold text-stone-700">
+        <div>
+          <div class="text-[10px] text-stone-400 uppercase tracking-wider font-bold">Preparation</div>
+          <div id="dishModalPrep" class="font-extrabold text-stone-900">~12 min</div>
+        </div>
+        <div class="border-x border-stone-200">
+          <div class="text-[10px] text-stone-400 uppercase tracking-wider font-bold">Nutrition</div>
+          <div id="dishModalCalories" class="font-extrabold text-stone-900">~320 kcal</div>
+        </div>
+        <div>
+          <div class="text-[10px] text-stone-400 uppercase tracking-wider font-bold">Allergens</div>
+          <div id="dishModalAllergens" class="font-extrabold text-stone-900 truncate">Dairy</div>
+        </div>
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-xs font-bold text-stone-700">Kitchen Instructions (Optional):</label>
+        <input type="text" id="dishModalNote" placeholder="e.g. Less spicy, extra butter, no onion" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+      </div>
+
+      <div class="pt-2 flex items-center gap-3">
+        <div class="flex items-center bg-stone-100 rounded-full px-2 py-1 gap-3 font-extrabold text-sm">
+          <button class="w-6 h-6 flex items-center justify-center text-stone-600 hover:text-stone-900" onclick="adjustModalQty(-1)">−</button>
+          <span id="dishModalQty">1</span>
+          <button class="w-6 h-6 flex items-center justify-center text-stone-600 hover:text-stone-900" onclick="adjustModalQty(1)">+</button>
+        </div>
+        <button id="btnAddModalDish" onclick="confirmModalAddToCart()" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-sm py-3 px-4 rounded-full shadow-lg shadow-brand-500/30 transition-all">
+          Add to Order • <span id="dishModalBtnPrice">₹0</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Drawer (Responsive Mobile Bottom Sheet) -->
+  <div id="cartDrawer" class="fixed bottom-0 left-0 right-0 max-w-xl mx-auto bg-white rounded-t-[32px] z-50 shadow-2xl max-h-[92vh] flex flex-col transform translate-y-full transition-transform duration-300">
+    <div class="bottom-sheet-handle"></div>
+    <div class="px-5 py-3 border-b border-stone-100 flex items-center justify-between">
+      <h3 class="text-base font-extrabold text-stone-900 flex items-center gap-2">
+        <i data-lucide="shopping-bag" class="w-4 h-4 text-brand-600"></i>
+        <span>Order Tray</span>
+      </h3>
+      <button onclick="closeCartDrawer()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center text-xs font-bold transition-all">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <div class="p-5 overflow-y-auto space-y-4 flex-1">
+      <!-- Active Channel & Timing Context Banner in Cart -->
+      <div id="cartChannelSummary" class="bg-brand-50 border border-brand-200 rounded-2xl p-3 flex items-center justify-between text-xs">
+        <div class="flex items-center gap-2.5">
+          <span id="cartChannelIcon" class="w-8 h-8 rounded-xl bg-brand-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+            <i data-lucide="utensils" class="w-4 h-4"></i>
+          </span>
+          <div>
+            <div id="cartChannelTitle" class="font-black text-stone-900 text-xs sm:text-sm">Dine-In • Table 5</div>
+            <div id="cartChannelTiming" class="text-[11px] text-brand-700 font-bold">Immediate Table Service</div>
+          </div>
+        </div>
+        <button onclick="closeCartDrawer()" class="px-2.5 py-1 bg-white border border-brand-200 text-brand-700 rounded-full text-[11px] font-bold hover:bg-brand-100 transition-all">Change</button>
+      </div>
+
+      <div id="cartItemsList" class="space-y-3"></div>
+
+      <!-- Coupon Input -->
+      <div class="bg-stone-50 border border-stone-200/70 rounded-2xl p-3 space-y-2">
+        <div class="flex gap-2">
+          <input type="text" id="inputCoupon" placeholder="PROMO CODE (HAPPY20)" class="flex-1 bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-bold uppercase focus:outline-none focus:ring-2 focus:ring-brand-500/20 font-mono">
+          <button onclick="applyPromoCode()" class="bg-stone-900 hover:bg-black text-white text-xs font-bold px-4 py-2 rounded-xl transition-all">Apply</button>
+        </div>
+        <div id="couponStatus" class="text-xs font-bold"></div>
+      </div>
+
+      <!-- Customer & Fulfillment Form -->
+      <div class="bg-stone-50 border border-stone-200/70 rounded-2xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div class="text-xs font-bold text-stone-800">Customer & Channel Details</div>
+          <button type="button" onclick="autoFillSavedProfile()" id="btnAutofillProfile" class="hidden text-[10px] font-extrabold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 px-2 py-0.5 rounded-full transition-all">
+            Use Saved Profile
+          </button>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <input type="text" id="inputCustomerName" placeholder="Full Name *" required class="bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+          <input type="tel" id="inputCustomerPhone" placeholder="Phone Number *" required class="bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+        </div>
+
+        <!-- Dine-In Specific Inputs -->
+        <div id="dineInFields" class="grid grid-cols-2 gap-2">
+          <input type="text" id="inputTableNumber" value="5" placeholder="Table Number (e.g. 5) *" class="bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+          <select id="inputPartySize" class="bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+            <option value="1">1 Guest</option>
+            <option value="2" selected>2 Guests</option>
+            <option value="4">4 Guests</option>
+            <option value="6">6+ Guests</option>
+          </select>
+        </div>
+
+        <!-- Takeaway Specific Inputs -->
+        <div id="takeawayFields" class="hidden">
+          <input type="text" id="inputTakeawayNotes" placeholder="Counter pickup note (e.g. Vehicle # or Eco Pack)" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+        </div>
+
+        <!-- Delivery Specific Inputs -->
+        <div id="deliveryFields" class="hidden space-y-2">
+          <input type="text" id="inputDeliveryAddress" placeholder="Street Address / Building Name *" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/20">
+          <input type="text" id="inputDeliveryLandmark" placeholder="Flat, Floor, or Landmark (e.g. Flat 302, Near Metro Exit 2)" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/20">
+        </div>
+      </div>
+
+      <!-- Green Dining & Staff Tip Options -->
+      <div class="bg-stone-50 border border-stone-200/70 rounded-2xl p-3.5 space-y-3">
+        <label class="flex items-start gap-2.5 cursor-pointer">
+          <input type="checkbox" id="checkNoCutlery" checked onchange="updateCartSummary()" class="mt-0.5 rounded text-brand-600 focus:ring-brand-500">
+          <div>
+            <div class="text-xs font-bold text-stone-900">Skip disposable plastic cutlery</div>
+            <div class="text-[10px] text-stone-500">Eco-conscious dining initiative to minimize single-use plastics.</div>
+          </div>
+        </label>
+
+        <div class="space-y-1.5 pt-1">
+          <div class="text-xs font-bold text-stone-800">Staff Appreciation Tip:</div>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button class="tip-pill py-1.5 rounded-xl border border-stone-200 bg-white text-xs font-bold text-stone-700 active bg-amber-50 border-brand-500 text-brand-700" data-tip="0" onclick="selectTipAmount(0)">₹0</button>
+            <button class="tip-pill py-1.5 rounded-xl border border-stone-200 bg-white text-xs font-bold text-stone-700" data-tip="10" onclick="selectTipAmount(10)">₹10</button>
+            <button class="tip-pill py-1.5 rounded-xl border border-stone-200 bg-white text-xs font-bold text-stone-700" data-tip="20" onclick="selectTipAmount(20)">₹20</button>
+            <button class="tip-pill py-1.5 rounded-xl border border-stone-200 bg-white text-xs font-bold text-stone-700" data-tip="50" onclick="selectTipAmount(50)">₹50</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bill Breakdown -->
+      <div class="bg-stone-100 rounded-2xl p-3.5 space-y-1.5 text-xs font-medium text-stone-600">
+        <div class="flex justify-between">
+          <span>Item Subtotal</span>
+          <span id="billSubtotal" class="font-bold text-stone-900">₹0.00</span>
+        </div>
+        <div id="billDiscountRow" class="hidden justify-between text-emerald-600 font-bold">
+          <span>Coupon Savings</span>
+          <span id="billDiscount">-₹0.00</span>
+        </div>
+        <div id="billDeliveryRow" class="hidden justify-between">
+          <span>Delivery Charge</span>
+          <span id="billDelivery">+₹30.00</span>
+        </div>
+        <div id="billTipRow" class="hidden justify-between text-brand-700 font-bold">
+          <span>Staff Tip</span>
+          <span id="billTip">+₹0.00</span>
+        </div>
+        <div class="border-t border-dashed border-stone-300 pt-2 flex justify-between text-sm font-extrabold text-stone-900">
+          <span>Total Payable</span>
+          <span id="billGrandTotal" class="text-brand-600">₹0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 bg-white border-t border-stone-100">
+      <button onclick="proceedToCheckout()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-sm py-3.5 rounded-full shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2 transition-all">
+        <span data-i18n="checkout">Proceed to Payment</span>
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Simulated Instant Digital Checkout Modal (Mobile Bottom Sheet / Desktop Modal) -->
+  <div id="checkoutModal" class="fixed bottom-0 sm:top-1/2 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-full sm:w-[90%] sm:max-w-md bg-white rounded-t-[28px] sm:rounded-3xl p-5 sm:p-6 z-50 shadow-2xl opacity-0 pointer-events-none transition-all duration-300 space-y-4 max-h-[92vh] overflow-y-auto">
+    <div class="bottom-sheet-handle sm:hidden"></div>
+    <div class="flex items-center justify-between">
+      <h3 class="text-base font-extrabold text-stone-900">Payment Method</h3>
+      <button onclick="closeCheckoutModal()" class="w-7 h-7 rounded-full bg-stone-100 text-stone-600 flex items-center justify-center text-xs font-bold transition-all hover:bg-stone-200">
+        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
+    <p class="text-xs text-stone-500 leading-relaxed font-medium">Select your preferred transaction channel. Directly synchronized with the kitchen dispatch board.</p>
+
+    <div class="grid grid-cols-3 gap-2">
+      <div class="payment-method-card active border-2 border-brand-500 bg-orange-50/70 p-3.5 rounded-2xl flex flex-col items-center gap-1.5 cursor-pointer transition-all" data-method="UPI" onclick="selectPaymentMethod('UPI')">
+        <i data-lucide="smartphone" class="w-6 h-6 text-brand-600"></i>
+        <span class="text-xs font-bold text-brand-900" data-i18n="pay_upi">UPI / QR</span>
+      </div>
+      <div class="payment-method-card border-2 border-stone-200 hover:border-stone-300 p-3.5 rounded-2xl flex flex-col items-center gap-1.5 cursor-pointer transition-all" data-method="CARD" onclick="selectPaymentMethod('CARD')">
+        <i data-lucide="credit-card" class="w-6 h-6 text-stone-600"></i>
+        <span class="text-xs font-bold text-stone-700">Card</span>
+      </div>
+      <div class="payment-method-card border-2 border-stone-200 hover:border-stone-300 p-3.5 rounded-2xl flex flex-col items-center gap-1.5 cursor-pointer transition-all" data-method="CASH" onclick="selectPaymentMethod('CASH')">
+        <i data-lucide="banknote" class="w-6 h-6 text-stone-600"></i>
+        <span class="text-xs font-bold text-stone-700" data-i18n="pay_cod">Cash / Desk</span>
+      </div>
+    </div>
+
+    <div class="bg-stone-50 rounded-xl p-2.5 text-center text-[11px] font-medium text-stone-500 flex items-center justify-center gap-1.5">
+      <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+      <span>Direct Restaurant Settlement • 0% Platform Fee</span>
+    </div>
+
+    <button id="btnFinalizePayment" onclick="finalizeOrderPayment()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-sm py-3.5 rounded-full shadow-lg shadow-brand-500/30 flex items-center justify-center gap-1.5 transition-all">
+      <span data-i18n="place_order">Confirm Order & Dispatch</span>
+      <i data-lucide="check" class="w-4 h-4"></i>
+    </button>
+  </div>
+
+  <!-- Post-Order Receipt Modal with Live Status (Mobile Bottom Sheet / Desktop Modal) -->
+  <div id="receiptModal" class="fixed bottom-0 sm:top-1/2 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-full sm:w-[92%] sm:max-w-md bg-white rounded-t-[28px] sm:rounded-3xl p-5 sm:p-6 z-50 shadow-2xl opacity-0 pointer-events-none transition-all duration-300 max-h-[92vh] sm:max-h-[90vh] overflow-y-auto space-y-4">
+    <div class="bottom-sheet-handle sm:hidden"></div>
+    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xl font-bold mx-auto">
+      <i data-lucide="check" class="w-6 h-6"></i>
+    </div>
+    <div class="text-center space-y-1">
+      <h2 class="text-xl font-extrabold text-stone-900">Order Confirmed</h2>
+      <div id="receiptOrderCode" class="inline-block bg-brand-50 border border-brand-200 text-brand-700 px-3 py-0.5 rounded-full text-xs font-mono font-bold tracking-wider">RL-0000</div>
+    </div>
+
+    <!-- Live Status Tracker -->
+    <div class="bg-stone-50 border border-stone-200/80 rounded-2xl p-4 space-y-3">
+      <div class="text-xs font-bold text-stone-700">Kitchen Preparation Status:</div>
+      <div class="relative flex justify-between py-1">
+        <div class="absolute top-4 left-4 right-4 h-1 bg-stone-200 z-0"></div>
+        <div id="trackerProgressBar" class="absolute top-4 left-4 h-1 bg-emerald-500 z-0 transition-all duration-500 w-[15%]"></div>
+        
+        <div class="relative z-10 flex flex-col items-center gap-1" id="step-pending">
+          <div class="step-dot w-7 h-7 rounded-full bg-emerald-500 text-white font-bold text-xs flex items-center justify-center shadow-md">1</div>
+          <span class="text-[10px] font-bold text-emerald-700">Received</span>
+        </div>
+        <div class="relative z-10 flex flex-col items-center gap-1" id="step-preparing">
+          <div class="step-dot w-7 h-7 rounded-full bg-white border-2 border-stone-300 text-stone-500 font-bold text-xs flex items-center justify-center">2</div>
+          <span class="text-[10px] font-bold text-stone-500">Preparing</span>
+        </div>
+        <div class="relative z-10 flex flex-col items-center gap-1" id="step-ready">
+          <div class="step-dot w-7 h-7 rounded-full bg-white border-2 border-stone-300 text-stone-500 font-bold text-xs flex items-center justify-center">3</div>
+          <span class="text-[10px] font-bold text-stone-500">Ready</span>
+        </div>
+        <div class="relative z-10 flex flex-col items-center gap-1" id="step-completed">
+          <div class="step-dot w-7 h-7 rounded-full bg-white border-2 border-stone-300 text-stone-500 font-bold text-xs flex items-center justify-center">4</div>
+          <span class="text-[10px] font-bold text-stone-500">Completed</span>
+        </div>
+      </div>
+      <div id="receiptPrepTime" class="text-center text-[11px] font-semibold text-stone-500">Estimated Duration: ~15-20 Mins</div>
+    </div>
+
+    <!-- Itemized Order Items Breakdown -->
+    <div class="bg-stone-50 rounded-2xl p-3 text-xs space-y-2 border border-stone-200/70">
+      <div class="text-[10px] font-extrabold uppercase text-stone-400 tracking-wider">Ordered Items</div>
+      <div id="receiptItemList" class="space-y-1.5 font-medium text-stone-700"></div>
+    </div>
+
+    <!-- Receipt Summary -->
+    <div class="bg-stone-50 rounded-2xl p-3 text-xs space-y-1.5 font-medium text-stone-600">
+      <div class="flex justify-between">
+        <span>Customer:</span>
+        <strong id="receiptCustomerName" class="text-stone-900">Guest</strong>
+      </div>
+      <div class="flex justify-between">
+        <span>Channel:</span>
+        <strong id="receiptOrderType" class="text-stone-900">Dine-In</strong>
+      </div>
+      <div class="flex justify-between pt-1 border-t border-stone-200 text-sm font-extrabold text-stone-900">
+        <span>Amount Settled:</span>
+        <strong id="receiptTotalPaid" class="text-brand-600">₹0.00</strong>
+      </div>
+    </div>
+
+    <!-- Automated Retention Engine: Bounce-Back Coupon -->
+    <div class="bg-stone-50 border border-stone-300 rounded-2xl p-4 space-y-2">
+      <span class="bg-stone-900 text-white text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full tracking-wider">RETENTION VOUCHER</span>
+      <h4 class="text-sm font-extrabold text-stone-900">₹50 Credit for Next Visit</h4>
+      <p class="text-[11px] text-stone-600 font-medium leading-relaxed">Thank you for dining with us. Use this single-use code within 7 days on orders over ₹199.</p>
+      <div class="flex items-center justify-between bg-white border border-stone-200 rounded-xl px-3 py-2">
+        <span id="receiptBounceBackCode" class="font-mono font-extrabold text-stone-900 text-sm tracking-widest">BACK50-XXXX</span>
+        <button onclick="copyBounceBackCoupon()" class="bg-stone-900 hover:bg-black text-white text-[11px] font-bold px-3 py-1 rounded-full transition-all">Copy</button>
+      </div>
+    </div>
+
+    <!-- Receipt Utility Actions (Print & WhatsApp) -->
+    <div class="grid grid-cols-2 gap-2 pt-1 no-print">
+      <button id="printReceiptBtn" onclick="window.print()" class="py-2.5 px-3 bg-stone-100 hover:bg-stone-200 border border-stone-300 text-stone-800 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm">
+        <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+        <span>Print Receipt</span>
+      </button>
+      <button id="shareWhatsAppBtn" onclick="shareReceiptWhatsApp()" class="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm">
+        <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+        <span>Share WhatsApp</span>
+      </button>
+    </div>
+
+    <div class="flex gap-2 pt-1 no-print">
+      <button id="btnCancelOrder" onclick="cancelActiveOrder()" class="px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-full text-xs font-bold transition-all">
+        Cancel Order
+      </button>
+      <button onclick="closeReceiptModal()" class="flex-1 py-3 bg-stone-900 hover:bg-stone-800 text-white rounded-full text-xs font-bold transition-all">
+        Return to Catalog
+      </button>
+    </div>
+  </div>
+
+  <!-- Customer Order History Modal (Mobile Bottom Sheet / Desktop Modal) -->
+  <div id="ordersHistoryModal" class="fixed bottom-0 sm:top-1/2 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-full sm:w-[92%] sm:max-w-md bg-white rounded-t-[28px] sm:rounded-3xl p-5 sm:p-6 z-50 shadow-2xl opacity-0 pointer-events-none transition-all duration-300 max-h-[88vh] sm:max-h-[85vh] flex flex-col space-y-4">
+    <div class="bottom-sheet-handle sm:hidden"></div>
+    <div class="flex items-center justify-between border-b border-stone-100 pb-3">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
+          <i data-lucide="history" class="w-4 h-4"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-extrabold text-stone-900">My Orders & History</h3>
+          <p class="text-[11px] text-stone-500 font-medium">1-Click re-ordering from your recent visits</p>
+        </div>
+      </div>
+      <button onclick="closeOrdersHistoryModal()" class="w-7 h-7 rounded-full bg-stone-100 text-stone-500 flex items-center justify-center text-xs font-bold hover:bg-stone-200 transition-all">
+        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
+    <div id="ordersHistoryList" class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs max-h-[60vh]">
+      <!-- Populated dynamically -->
+    </div>
+  </div>
+
+  <!-- Admin Login & Dashboard Quick Access Modal (Mobile Bottom Sheet / Desktop Modal) -->
+  <div id="adminModalBackdrop" onclick="closeAdminModal()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+  <div id="adminLoginModal" class="fixed bottom-0 sm:top-1/2 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-full sm:w-[92%] sm:max-w-md bg-white rounded-t-[28px] sm:rounded-3xl p-5 sm:p-7 z-50 shadow-2xl opacity-0 pointer-events-none transition-all duration-300 max-h-[90vh] overflow-y-auto space-y-4">
+    <div class="bottom-sheet-handle sm:hidden"></div>
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-stone-100 pb-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-2xl bg-stone-900 text-white flex items-center justify-center font-bold shadow-md">
+          <i data-lucide="shield-check" class="w-5 h-5 text-amber-400"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-extrabold text-stone-900">Admin & Staff Portal</h3>
+          <p class="text-[11px] text-stone-500 font-medium">Operations, KDS, & Store Controls</p>
+        </div>
+      </div>
+      <button onclick="closeAdminModal()" class="w-7 h-7 rounded-full bg-stone-100 text-stone-500 flex items-center justify-center text-xs font-bold hover:bg-stone-200 transition-all">
+        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
+
+    <!-- State 1: When NOT authenticated -->
+    <div id="adminModalLoggedOut" class="space-y-4">
+      <!-- Tabs: PIN vs Creds -->
+      <div class="flex bg-stone-100 p-1 rounded-2xl">
+        <button id="adminTabPin" onclick="switchStorefrontAuthTab('PIN')" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-white text-stone-900 shadow-sm flex items-center justify-center gap-1.5">
+          <i data-lucide="hash" class="w-3.5 h-3.5"></i>
+          <span>Staff Quick PIN</span>
+        </button>
+        <button id="adminTabCreds" onclick="switchStorefrontAuthTab('CREDS')" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all text-stone-500 hover:text-stone-900 flex items-center justify-center gap-1.5">
+          <i data-lucide="key" class="w-3.5 h-3.5"></i>
+          <span>Manager Login</span>
+        </button>
+      </div>
+
+      <!-- Error Banner -->
+      <div id="adminModalError" class="hidden p-3 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold flex items-center gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0 text-red-500"></i>
+        <span id="adminModalErrorMsg">Invalid credentials. Please try again.</span>
+      </div>
+
+      <!-- PIN Form -->
+      <form id="storefrontAuthPinForm" onsubmit="event.preventDefault(); submitStorefrontPin();" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-bold text-stone-700 mb-1 text-center">4-Digit Quick Staff PIN</label>
+          <input type="password" id="storefrontAuthPin" maxlength="4" placeholder="••••" autocomplete="current-password" oninput="if(this.value.length === 4) submitStorefrontPin();" class="w-full bg-stone-50 border border-stone-200 text-center text-2xl tracking-[0.5em] font-mono font-black text-stone-900 py-3 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
+        </div>
+        <button type="submit" id="btnStorefrontSubmitPin" class="w-full py-3 bg-stone-900 hover:bg-stone-800 text-white font-extrabold text-xs rounded-2xl shadow-lg transition-all">
+          Unlock Operations Dashboard
+        </button>
+        <div class="text-center pt-1">
+          <button type="button" onclick="autoFillStorefrontPin('1234')" class="text-[11px] text-brand-600 hover:underline font-semibold bg-brand-50 border border-brand-200/60 px-3 py-1 rounded-full">
+            Quick Demo PIN: <strong class="font-mono">1234</strong> (Click to auto-fill)
+          </button>
+        </div>
+      </form>
+
+      <!-- Creds Form -->
+      <form id="storefrontAuthCredsForm" onsubmit="event.preventDefault(); submitStorefrontCreds();" class="space-y-3.5 hidden">
+        <div>
+          <label class="block text-xs font-bold text-stone-700 mb-1">Manager Username</label>
+          <input type="text" id="storefrontAuthUser" placeholder="admin" value="admin" autocomplete="username" class="w-full bg-stone-50 border border-stone-200 text-xs font-semibold text-stone-900 px-3.5 py-2.5 rounded-2xl focus:outline-none focus:border-brand-500 transition-all">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-stone-700 mb-1">Manager Password</label>
+          <input type="password" id="storefrontAuthPass" placeholder="••••••••" value="rasoi2026" autocomplete="current-password" class="w-full bg-stone-50 border border-stone-200 text-xs font-semibold text-stone-900 px-3.5 py-2.5 rounded-2xl focus:outline-none focus:border-brand-500 transition-all">
+        </div>
+        <button type="submit" id="btnStorefrontSubmitCreds" class="w-full py-3 bg-stone-900 hover:bg-stone-800 text-white font-extrabold text-xs rounded-2xl shadow-lg transition-all">
+          Sign In as Manager
+        </button>
+        <div class="text-center pt-1">
+          <button type="button" onclick="autoFillStorefrontCreds('admin', 'rasoi2026')" class="text-[11px] text-brand-600 hover:underline font-semibold bg-brand-50 border border-brand-200/60 px-3 py-1 rounded-full">
+            Demo: <strong class="font-mono">admin / rasoi2026</strong> (Click to auto-fill)
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- State 2: When ALREADY authenticated -->
+    <div id="adminModalLoggedIn" class="space-y-4 hidden">
+      <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold">
+            <i data-lucide="check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="text-xs font-extrabold text-emerald-950" id="storefrontAdminName">Store Manager</div>
+            <div class="text-[10px] text-emerald-700 font-medium" id="storefrontAdminRole">Head Chef & Manager • Active Session</div>
+          </div>
+        </div>
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+        <a href="/kitchen.html" class="p-3 bg-stone-900 hover:bg-stone-800 text-white rounded-2xl flex flex-col items-center justify-center text-center gap-1.5 shadow-sm transition-all">
+          <i data-lucide="layout-grid" class="w-5 h-5 text-amber-400"></i>
+          <span>Kitchen Board (KDS)</span>
+        </a>
+        <a href="/kitchen.html" onclick="localStorage.setItem('kds_target_tab', 'SETTINGS')" class="p-3 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200 rounded-2xl flex flex-col items-center justify-center text-center gap-1.5 transition-all">
+          <i data-lucide="settings" class="w-5 h-5 text-stone-600"></i>
+          <span>Store Settings</span>
+        </a>
+        <a href="/kitchen.html" onclick="localStorage.setItem('kds_target_tab', 'MENU')" class="p-3 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200 rounded-2xl flex flex-col items-center justify-center text-center gap-1.5 transition-all">
+          <i data-lucide="utensils" class="w-5 h-5 text-stone-600"></i>
+          <span>Menu & Margins</span>
+        </a>
+        <a href="/kitchen.html" onclick="localStorage.setItem('kds_target_tab', 'ANALYTICS')" class="p-3 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200 rounded-2xl flex flex-col items-center justify-center text-center gap-1.5 transition-all">
+          <i data-lucide="bar-chart-3" class="w-5 h-5 text-stone-600"></i>
+          <span>Analytics</span>
+        </a>
+      </div>
+
+      <div class="pt-2 border-t border-stone-100 flex items-center justify-between">
+        <a href="/kitchen.html" class="inline-flex items-center gap-1.5 text-xs text-brand-600 hover:underline font-bold">
+          <span>Go to Full Portal</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </a>
+        <button onclick="logoutStorefrontAdmin()" class="inline-flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 font-bold px-3 py-1.5 rounded-full hover:bg-red-50 transition-all">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating AI Concierge Widget (Desktop Floating Bubble & Mobile Bottom Sheet) -->
+  <div>
+    <!-- Desktop Floating Trigger Button (On mobile, triggered via Mobile Bottom Navigation Bar) -->
+    <button id="chatTriggerBtn" title="Digital Dining Concierge" class="hidden md:flex fixed bottom-6 right-5 w-14 h-14 rounded-full bg-stone-900 text-white items-center justify-center text-xl shadow-xl hover:bg-brand-600 hover:scale-105 transition-all duration-300 z-50 group">
+      <i data-lucide="message-square" class="w-6 h-6"></i>
+      <span class="absolute top-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
+    </button>
+
+    <!-- Chat Window - Responsive Bottom Sheet on Mobile, Popover on Desktop -->
+    <div id="chatWindow" class="fixed inset-x-2 sm:inset-x-auto bottom-16 sm:bottom-16 sm:right-5 w-auto sm:w-[360px] max-w-full sm:max-w-[90vw] h-[82vh] sm:h-[500px] bg-white rounded-t-[28px] sm:rounded-3xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col transform scale-90 translate-y-8 opacity-0 pointer-events-none transition-all duration-300 origin-bottom-right z-50">
+      <div class="bottom-sheet-handle sm:hidden"></div>
+      <div class="bg-stone-900 text-white px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-brand-600 flex items-center justify-center text-xs shadow-sm">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="text-xs font-extrabold leading-tight">Rasoi Concierge</div>
+            <div class="text-[10px] text-stone-400 font-medium">Groq AI Assistant</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button id="btnVoiceToggle" title="Toggle audio voice" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-xs flex items-center justify-center transition-all">
+            <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+          </button>
+          <button id="chatCloseBtn" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-xs flex items-center justify-center transition-all">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="chatBody" class="flex-1 p-3.5 overflow-y-auto space-y-2.5 bg-stone-50/70 text-xs"></div>
+
+      <div class="flex gap-1.5 overflow-x-auto no-scrollbar p-2 bg-stone-100/80 border-t border-stone-200/60">
+        <button onclick="sendQuickPrompt('Add 2 Cutting Chai and 1 Bombay Pav Bhaji')" class="flex-shrink-0 bg-white hover:bg-brand-50 border border-stone-200/80 hover:border-brand-500 text-stone-700 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all">Chai & Pav Bhaji</button>
+        <button onclick="sendQuickPrompt('Apply coupon HAPPY20')" class="flex-shrink-0 bg-white hover:bg-brand-50 border border-stone-200/80 hover:border-brand-500 text-stone-700 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all">Apply HAPPY20</button>
+        <button onclick="sendQuickPrompt('What are your vegetarian specials?')" class="flex-shrink-0 bg-white hover:bg-brand-50 border border-stone-200/80 hover:border-brand-500 text-stone-700 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all">Vegetarian</button>
+        <button onclick="sendQuickPrompt('Schedule for tomorrow lunch 1:00 PM')" class="flex-shrink-0 bg-white hover:bg-brand-50 border border-stone-200/80 hover:border-brand-500 text-stone-700 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all">Schedule Lunch</button>
+      </div>
+
+      <div class="p-2.5 bg-white border-t border-stone-200 flex gap-2">
+        <input type="text" id="chatInput" placeholder="Inquire about dishes, add to tray, schedule..." class="flex-1 bg-stone-50 border border-stone-200 rounded-full px-3.5 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+        <button id="chatSendBtn" class="w-8 h-8 rounded-full bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center text-xs font-bold transition-all">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Restaurant Outlet Selector Modal (Mobile Bottom Sheet / Desktop Modal) -->
+  <div id="restaurantSelectorModal" class="fixed bottom-0 sm:top-1/2 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-full sm:w-[92%] sm:max-w-lg bg-white rounded-t-[28px] sm:rounded-3xl p-5 sm:p-6 z-50 shadow-2xl opacity-0 pointer-events-none transition-all duration-300 max-h-[88vh] sm:max-h-[85vh] flex flex-col space-y-4">
+    <div class="bottom-sheet-handle sm:hidden"></div>
+    <div class="flex items-center justify-between border-b border-stone-100 pb-3">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
+          <i data-lucide="building-2" class="w-4 h-4"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-extrabold text-stone-900">Select Restaurant Outlet</h3>
+          <p class="text-[11px] text-stone-500 font-medium">Choose your preferred branch for dine-in, takeaway, or delivery</p>
+        </div>
+      </div>
+      <button onclick="closeRestaurantSelectorModal()" class="w-7 h-7 rounded-full bg-stone-100 text-stone-500 flex items-center justify-center text-xs font-bold hover:bg-stone-200 transition-all">
+        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
+    <div id="restaurantSelectorList" class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs max-h-[60vh]">
+      <!-- Populated dynamically via app.js -->
+    </div>
+  </div>
+
+  <!-- Active Order Live Tracker Floating Widget (Elevated Above Mobile Bottom Nav) -->
+  <div id="liveOrderTrackerWidget" class="fixed bottom-[72px] sm:bottom-20 right-3 sm:right-4 z-40 bg-white border border-stone-200/90 rounded-full py-2 px-3.5 shadow-xl flex items-center gap-2.5 transition-all duration-300 hidden cursor-pointer hover:shadow-2xl hover:scale-105 active:scale-95" onclick="viewActiveOrderReceipt()">
+    <span class="relative flex h-2.5 w-2.5">
+      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+      <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+    </span>
+    <div class="text-xs">
+      <span class="font-mono font-black text-stone-900" id="trackerOrderCode">RL-0000</span>
+      <span class="text-stone-400">•</span>
+      <span class="text-brand-700 font-bold" id="trackerOrderStatus">In Kitchen</span>
+    </div>
+    <span class="text-[10px] font-extrabold bg-stone-900 text-white px-2 py-0.5 rounded-full uppercase">Track</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/static/js/i18n.js"></script>
+  <script src="/static/js/voice-assistant.js"></script>
+  <script src="/static/js/offline-sync.js"></script>
+  <script src="/static/js/group-hunger.js"></script>
+  <script src="/static/js/waste-profit.js"></script>
+  <script src="/static/js/safekitchen.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script src="/static/js/chatbot.js"></script>
+  <script>
+    function toggleLanguageDropdown() {
+      const dd = document.getElementById('languageDropdown');
+      if (dd) dd.classList.toggle('hidden');
+    }
+    function selectLanguage(lang) {
+      if (window.setLanguage) window.setLanguage(lang);
+      const dd = document.getElementById('languageDropdown');
+      if (dd) dd.classList.add('hidden');
+      const label = document.getElementById('currentLangLabel');
+      if (label && window.BHARAT_LANGUAGES && window.BHARAT_LANGUAGES[lang]) {
+        label.textContent = window.BHARAT_LANGUAGES[lang].native;
+      }
+    }
+    document.addEventListener('click', (e) => {
+      const btn = document.getElementById('btnHeaderLanguage');
+      const dd = document.getElementById('languageDropdown');
+      if (dd && btn && !btn.contains(e.target) && !dd.contains(e.target)) {
+        dd.classList.add('hidden');
+      }
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

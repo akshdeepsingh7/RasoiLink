@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#FFFFFF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>RasoiLink — Kitchen Operations & Management</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23ea580c%22 stroke-width=%222%22><path d=%22M18 2v20M6 2v7a3 3 0 0 0 3 3v10M10 2v7a3 3 0 0 1-3 3M14 2c1.5 0 3 1.5 3 3.5V11a3 3 0 0 1-3 3v8%22/></svg>">
+
+  <!-- Lucide Vector Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+
+  <!-- ======================================================== -->
+  <!-- 1. ADMIN AUTHENTICATION GATE (Visible when not logged in) -->
+  <!-- ======================================================== -->
+  <div id="adminAuthOverlay" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+      <!-- Header -->
+      <div class="text-center space-y-2 mb-6">
+        <div class="w-12 h-12 rounded-2xl bg-brand-600 text-white flex items-center justify-center mx-auto shadow-md shadow-brand-500/20">
+          <i data-lucide="shield-check" class="w-6 h-6"></i>
+        </div>
+        <h2 class="text-xl font-black text-slate-900 tracking-tight">Kitchen Operations Portal</h2>
+        <p class="text-xs text-slate-500 font-medium">Restricted Access • Authorized Staff & Kitchen Operations</p>
+      </div>
+
+      <!-- Auth Tabs: PIN vs Password -->
+      <div class="flex bg-slate-100 p-1 rounded-2xl mb-6 border border-slate-200/80">
+        <button id="authTabPin" onclick="switchAuthTab('PIN')" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-white text-slate-900 shadow-sm flex items-center justify-center gap-1.5 border border-slate-200/60">
+          <i data-lucide="hash" class="w-3.5 h-3.5 text-brand-600"></i>
+          <span>Staff Quick PIN</span>
+        </button>
+        <button id="authTabCreds" onclick="switchAuthTab('CREDS')" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all text-slate-500 hover:text-slate-800 flex items-center justify-center gap-1.5">
+          <i data-lucide="key" class="w-3.5 h-3.5"></i>
+          <span>Manager Login</span>
+        </button>
+      </div>
+
+      <!-- Error Alert -->
+      <div id="authErrorAlert" class="hidden mb-4 p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0 text-rose-600"></i>
+        <span id="authErrorMsg">Invalid credentials. Please try again.</span>
+      </div>
+
+      <!-- Form 1: Quick PIN Pad -->
+      <form id="authViewPin" onsubmit="event.preventDefault(); submitPinAuth();" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1.5 text-center">Enter 4-Digit Staff PIN</label>
+          <input type="password" id="inputAuthPin" maxlength="4" placeholder="••••" autocomplete="current-password" oninput="if(this.value.length === 4) submitPinAuth();" onkeydown="if(event.key === 'Enter') submitPinAuth();" class="w-full bg-slate-50 border border-slate-200 text-center text-2xl tracking-[0.5em] font-mono font-black text-slate-900 py-3 rounded-2xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all shadow-inner">
+        </div>
+
+        <!-- Numeric Keypad for Touchscreens / Tablets -->
+        <div class="grid grid-cols-3 gap-2 pt-1 font-mono">
+          <button type="button" onclick="pressPin('1')" class="py-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl text-base font-bold text-slate-800 transition-all active:scale-95 shadow-sm">1</button>
+          <button type="button" onclick="pressPin('2')" class="py-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl text-base font-bold text-slate-800 transition-all active:scale-95 shadow-sm">2</button>
+          <button type="button" onclick="pressPin('3')" class="py-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl text-base font-bold text-slate-800 transition-all active:scale-95 shadow-sm">3</button>
+          <button type="button" onclick="pressPin('4')" class="py-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl text-base font-bold text-slate-800 transition-all active:scale-95 shadow-sm">4</button>
+          <button type="button" onclick="pressPin('5')" class="py-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl text-base font-bold text-slate-800 transition-all active:scale-95 shadow-sm">5</button>
+          <button type="button" onclick="pressPin('6')" class="py-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl text-base font-bold text-slate-800 transition-all active:scale-95 shadow-sm">6</button>
+          <button type="button" onclick="pressPin('7')" class="py-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl text-base font-bold text-slate-800 transition-all active:scale-95 shadow-sm">7</button>
+          <button type="button" onclick="pressPin('8')" class="py-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl text-base font-bold text-slate-800 transition-all active:scale-95 shadow-sm">8</button>
+          <button type="button" onclick="pressPin('9')" class="py-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl text-base font-bold text-slate-800 transition-all active:scale-95 shadow-sm">9</button>
+          <button type="button" onclick="clearPin()" class="py-3 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-2xl text-xs font-bold text-rose-700 transition-all active:scale-95">CLEAR</button>
+          <button type="button" onclick="pressPin('0')" class="py-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl text-base font-bold text-slate-800 transition-all active:scale-95 shadow-sm">0</button>
+          <button type="button" onclick="submitPinAuth()" class="py-3 bg-emerald-600 hover:bg-emerald-700 rounded-2xl text-xs font-bold text-white transition-all active:scale-95 flex items-center justify-center shadow-md shadow-emerald-600/20">
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <button type="submit" id="btnSubmitPin" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold text-xs rounded-2xl shadow-md shadow-brand-500/20 transition-all">
+          Unlock Operations Dashboard
+        </button>
+
+        <!-- Demo Hint -->
+        <div class="text-center pt-1">
+          <button type="button" onclick="autoFillPin('1234')" class="text-[11px] text-brand-700 hover:underline font-bold bg-brand-50 border border-brand-200 px-3 py-1 rounded-full transition-all">
+            Demo PIN: <strong class="font-mono">1234</strong> (Click to auto-fill & unlock)
+          </button>
+        </div>
+      </form>
+
+      <!-- Form 2: Manager Credentials -->
+      <form id="authViewCreds" onsubmit="event.preventDefault(); submitCredsAuth();" class="space-y-4 hidden">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Manager Username</label>
+          <input type="text" id="inputAuthUser" placeholder="admin" value="admin" autocomplete="username" onkeydown="if(event.key === 'Enter') submitCredsAuth();" class="w-full bg-slate-50 border border-slate-200 text-sm text-slate-900 px-3.5 py-2.5 rounded-2xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Manager Password</label>
+          <input type="password" id="inputAuthPass" placeholder="••••••••" value="rasoi2026" autocomplete="current-password" onkeydown="if(event.key === 'Enter') submitCredsAuth();" class="w-full bg-slate-50 border border-slate-200 text-sm text-slate-900 px-3.5 py-2.5 rounded-2xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+        </div>
+
+        <button type="submit" id="btnSubmitCreds" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold text-xs rounded-2xl shadow-md shadow-brand-500/20 transition-all">
+          Sign In as Manager
+        </button>
+
+        <!-- Demo Hint -->
+        <div class="text-center pt-1">
+          <button type="button" onclick="autoFillCreds('admin', 'rasoi2026')" class="text-[11px] text-brand-700 hover:underline font-bold bg-brand-50 border border-brand-200 px-3 py-1 rounded-full transition-all">
+            Demo Credentials: <strong class="font-mono">admin / rasoi2026</strong> (Click to auto-fill)
+          </button>
+        </div>
+      </form>
+
+      <!-- Storefront Return Link -->
+      <div class="text-center pt-4 border-t border-slate-100 mt-4">
+        <a href="/" class="text-xs text-slate-500 hover:text-slate-800 transition-all font-semibold inline-flex items-center gap-1.5">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Return to Customer Storefront</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 2. AUTHENTICATED MANAGEMENT DASHBOARD VIEW -->
+  <!-- ======================================================== -->
+  <div id="dashboardApp" class="flex-1 flex flex-col opacity-0 pointer-events-none transition-opacity duration-300">
+
+    <!-- Top Header: Aesthetic Minimalist White -->
+    <header class="sticky top-0 z-40 bg-white border-b border-slate-200/90 px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-sm">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-sm">
+          <i data-lucide="utensils" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-base font-extrabold tracking-tight text-slate-900 leading-tight">RasoiLink Operations</span>
+            <span id="adminUserBadge" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 border border-emerald-200 text-emerald-800">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span id="adminUserName">Store Manager</span>
+            </span>
+          </div>
+          <div class="text-[10px] text-slate-500 font-semibold tracking-wider uppercase">Live Production Board • Team TrueAddams</div>
+        </div>
+      </div>
+
+      <!-- Center / Right Controls -->
+      <div class="flex items-center flex-wrap gap-2">
+        <!-- Restaurant Outlet Selector -->
+        <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-sm">
+          <i data-lucide="building-2" class="w-3.5 h-3.5 text-brand-600"></i>
+          <select id="outletFilterSelect" onchange="changeOutletFilter(this.value)" class="bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer">
+            <option value="ALL">All Outlets (Network-wide)</option>
+            <option value="cp-artisan" selected>Connaught Place (Flagship)</option>
+            <option value="cyberhub-bistro">DLF Cyber Hub</option>
+            <option value="khan-market">Khan Market</option>
+            <option value="indiranagar">Indiranagar Bengaluru</option>
+          </select>
+        </div>
+
+        <!-- Live Clock -->
+        <div id="kdsClock" class="font-mono text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl shadow-inner">
+          --:--:--
+        </div>
+
+        <button id="btnToggleSound" class="btn-kds-tool px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-100 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm" title="Toggle audio chime">
+          <i data-lucide="bell" class="w-3.5 h-3.5 text-emerald-600"></i>
+          <span>Sound ON</span>
+        </button>
+
+        <button onclick="openAudioSettingsModal()" class="btn-kds-tool px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm" title="Configure synthesizer audio">
+          <i data-lucide="volume-2" class="w-3.5 h-3.5 text-slate-500"></i>
+          <span>Audio Tone</span>
+        </button>
+
+        <button onclick="openQRModal()" class="btn-kds-tool px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="qr-code" class="w-3.5 h-3.5 text-slate-500"></i>
+          <span>Table QR</span>
+        </button>
+
+        <button onclick="toggleFullscreen()" class="btn-kds-tool px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-slate-500"></i>
+          <span>Fullscreen</span>
+        </button>
+
+        <a href="/landing" target="_blank" class="px-3.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm" title="View Landing Page">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-brand-600"></i>
+          <span class="hidden sm:inline">Landing</span>
+        </a>
+
+        <a href="/" target="_blank" class="px-3.5 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-extrabold shadow-sm transition-all flex items-center gap-1.5">
+          <i data-lucide="store" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Storefront</span>
+        </a>
+
+        <button onclick="logoutAdmin()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm" title="Sign out of Operations">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs Strip: Minimalist Segment Controller -->
+    <nav class="bg-white border-b border-slate-200/90 px-4 py-2.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar shadow-sm">
+      <button onclick="switchDashboardTab('TICKETS')" id="tabBtnTickets" class="dash-tab-btn px-4 py-2 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all bg-brand-600 text-white shadow-sm">
+        <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i>
+        <span>Live Production (KDS)</span>
+      </button>
+
+      <button onclick="switchDashboardTab('MENU')" id="tabBtnMenu" class="dash-tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+        <i data-lucide="package" class="w-3.5 h-3.5"></i>
+        <span>Menu & Inventory</span>
+      </button>
+
+      <button onclick="switchDashboardTab('PROMOS')" id="tabBtnPromos" class="dash-tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+        <i data-lucide="ticket" class="w-3.5 h-3.5"></i>
+        <span>Promotions & Vouchers</span>
+      </button>
+
+      <button onclick="switchDashboardTab('SLOTS')" id="tabBtnSlots" class="dash-tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+        <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+        <span>Capacity Planner</span>
+      </button>
+
+      <button onclick="switchDashboardTab('ANALYTICS')" id="tabBtnAnalytics" class="dash-tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+        <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>
+        <span>Sales & Analytics</span>
+      </button>
+
+      <button onclick="switchDashboardTab('SETTINGS')" id="tabBtnSettings" class="dash-tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+        <i data-lucide="store" class="w-3.5 h-3.5"></i>
+        <span>Store Profile & Settings</span>
+      </button>
+
+      <button onclick="switchDashboardTab('OUTLETS')" id="tabBtnOutlets" class="dash-tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+        <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+        <span>Outlets & Franchise</span>
+      </button>
+
+      <button onclick="switchDashboardTab('WASTE')" id="tabBtnWaste" class="dash-tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+        <i data-lucide="leaf" class="w-3.5 h-3.5 text-emerald-600"></i>
+        <span>🌱 AI Waste-to-Profit</span>
+      </button>
+
+      <button onclick="switchDashboardTab('MARKETING')" id="tabBtnMarketing" class="dash-tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+        <i data-lucide="send" class="w-3.5 h-3.5 text-emerald-600"></i>
+        <span>📢 Marketing Autopilot</span>
+      </button>
+
+      <button onclick="switchDashboardTab('GROUPPOOLS')" id="tabBtnGrouppools" class="dash-tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+        <i data-lucide="users" class="w-3.5 h-3.5 text-amber-600"></i>
+        <span>👥 Group Hunger Pools</span>
+      </button>
+
+      <button onclick="switchDashboardTab('BHARAT')" id="tabBtnBharat" class="dash-tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+        <i data-lucide="wifi" class="w-3.5 h-3.5 text-brand-600"></i>
+        <span>📶 Bharat Offline Hub</span>
+      </button>
+    </nav>
+
+    <!-- TAB 1: LIVE KITCHEN BOARD (KDS) -->
+    <div id="tabViewTickets" class="dash-view flex-1 flex flex-col">
+      <!-- Minimalist White KPI Strip -->
+      <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 p-3.5 bg-slate-100/70 border-b border-slate-200 text-xs">
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-3 space-y-1 shadow-sm">
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Active Tickets</div>
+          <div id="statActive" class="text-xl font-black font-mono text-slate-900">0</div>
+        </div>
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-3 space-y-1 shadow-sm">
+          <div class="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Pending Prep</div>
+          <div id="statPending" class="text-xl font-black font-mono text-amber-600">0</div>
+        </div>
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-3 space-y-1 shadow-sm">
+          <div class="text-[10px] font-bold text-sky-700 uppercase tracking-wider">In Kitchen</div>
+          <div id="statPreparing" class="text-xl font-black font-mono text-sky-600">0</div>
+        </div>
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-3 space-y-1 shadow-sm">
+          <div class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Ready to Serve</div>
+          <div id="statReady" class="text-xl font-black font-mono text-emerald-600">0</div>
+        </div>
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-3 space-y-1 shadow-sm">
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Completed Today</div>
+          <div id="statCompletedToday" class="text-xl font-black font-mono text-slate-700">0</div>
+        </div>
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-3 space-y-1 shadow-sm">
+          <div class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Today's Sales</div>
+          <div id="statRevenue" class="text-xl font-black font-mono text-emerald-600">₹0</div>
+        </div>
+      </section>
+
+      <!-- Filter & Search Bar: Clean Minimalist White -->
+      <section class="flex flex-col xl:flex-row items-center justify-between gap-3 p-3.5 bg-white border-b border-slate-200">
+        <div class="relative w-full xl:max-w-md">
+          <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" id="kdsSearchInput" placeholder="Search table, order code, phone, or dish name..." oninput="handleKDSSearch(this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-full pl-8 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-500 focus:bg-white shadow-inner transition-all">
+        </div>
+
+        <div class="flex items-center flex-wrap gap-2 w-full xl:w-auto">
+          <!-- Status Pills -->
+          <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl border border-slate-200/80">
+            <button class="kds-filter-pill px-3 py-1 rounded-xl text-xs font-bold transition-all bg-white text-slate-900 shadow-sm border border-slate-200/60" data-status="ALL" onclick="filterKDSStatus('ALL')">Active</button>
+            <button class="kds-filter-pill px-3 py-1 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900" data-status="PENDING" onclick="filterKDSStatus('PENDING')">Pending</button>
+            <button class="kds-filter-pill px-3 py-1 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900" data-status="PREPARING" onclick="filterKDSStatus('PREPARING')">Preparing</button>
+            <button class="kds-filter-pill px-3 py-1 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900" data-status="READY" onclick="filterKDSStatus('READY')">Ready</button>
+            <button class="kds-filter-pill px-3 py-1 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900" data-status="COMPLETED" onclick="filterKDSStatus('COMPLETED')">Done</button>
+          </div>
+
+          <!-- Channel Pills -->
+          <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl border border-slate-200/80">
+            <button class="kds-channel-pill px-3 py-1 rounded-xl text-xs font-bold transition-all bg-brand-600 text-white shadow-sm" data-channel="ALL" onclick="filterKDSChannel('ALL')">All Channels</button>
+            <button class="kds-channel-pill px-3 py-1 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900" data-channel="DINE_IN" onclick="filterKDSChannel('DINE_IN')">Dine-In</button>
+            <button class="kds-channel-pill px-3 py-1 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900" data-channel="TAKEAWAY" onclick="filterKDSChannel('TAKEAWAY')">Takeaway</button>
+            <button class="kds-channel-pill px-3 py-1 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900" data-channel="DELIVERY" onclick="filterKDSChannel('DELIVERY')">Delivery</button>
+          </div>
+
+          <!-- Timing Filter Pills (Now vs Scheduled) -->
+          <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl border border-slate-200/80">
+            <button class="kds-timing-pill px-3 py-1 rounded-xl text-xs font-bold transition-all bg-emerald-600 text-white shadow-sm" data-timing="ALL" onclick="filterKDSTiming('ALL')">All Timings</button>
+            <button class="kds-timing-pill px-3 py-1 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900" data-timing="NOW" onclick="filterKDSTiming('NOW')">Immediate</button>
+            <button class="kds-timing-pill px-3 py-1 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900" data-timing="SCHEDULED" onclick="filterKDSTiming('SCHEDULED')">Scheduled</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mobile Channel View Segment Controller (for phone/tablet screens) -->
+      <div class="lg:hidden px-4 pt-3 pb-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar bg-slate-50">
+        <button onclick="setMobileKdsChannel('ALL')" id="btnMobKdsALL" class="mob-kds-channel-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-brand-600 text-white shadow-sm flex items-center gap-1 active:scale-95">
+          <span>All Queues</span>
+        </button>
+        <button onclick="setMobileKdsChannel('DINE_IN')" id="btnMobKdsDINE_IN" class="mob-kds-channel-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-white border border-slate-200 text-slate-700 flex items-center gap-1 active:scale-95">
+          <i data-lucide="utensils" class="w-3.5 h-3.5 text-amber-600"></i>
+          <span>Dine-In</span>
+          <span id="mobCountDineIn" class="text-[10px] bg-amber-100 text-amber-800 font-extrabold px-1.5 rounded-full ml-0.5">0</span>
+        </button>
+        <button onclick="setMobileKdsChannel('TAKEAWAY')" id="btnMobKdsTAKEAWAY" class="mob-kds-channel-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-white border border-slate-200 text-slate-700 flex items-center gap-1 active:scale-95">
+          <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-sky-600"></i>
+          <span>Takeaway</span>
+          <span id="mobCountTakeaway" class="text-[10px] bg-sky-100 text-sky-800 font-extrabold px-1.5 rounded-full ml-0.5">0</span>
+        </button>
+        <button onclick="setMobileKdsChannel('DELIVERY')" id="btnMobKdsDELIVERY" class="mob-kds-channel-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-white border border-slate-200 text-slate-700 flex items-center gap-1 active:scale-95">
+          <i data-lucide="truck" class="w-3.5 h-3.5 text-purple-600"></i>
+          <span>Delivery</span>
+          <span id="mobCountDelivery" class="text-[10px] bg-purple-100 text-purple-800 font-extrabold px-1.5 rounded-full ml-0.5">0</span>
+        </button>
+      </div>
+
+      <!-- 3 Separate Production Queues (Dine-In, Takeaway, Delivery) in White Aesthetic -->
+      <main class="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 flex-1 overflow-x-auto bg-slate-50">
+        <!-- Col 1: Dine-In Queue -->
+        <div id="wrapColDineIn" class="bg-white border border-slate-200/90 rounded-3xl flex flex-col overflow-hidden shadow-sm">
+          <div class="px-4 py-3 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2 font-extrabold text-sm text-amber-800">
+                <i data-lucide="utensils" class="w-4 h-4 text-amber-600"></i>
+                <span>Dine-In Queue</span>
+              </div>
+              <div id="subDineIn" class="text-[10px] text-slate-500 font-medium">Table orders & reservations</div>
+            </div>
+            <span id="countDineIn" class="font-mono bg-amber-50 border border-amber-200 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
+          </div>
+          <div id="colDineIn" class="p-3.5 space-y-3 flex-1 overflow-y-auto max-h-[calc(100vh-270px)] bg-slate-50/50"></div>
+        </div>
+
+        <!-- Col 2: Takeaway Queue -->
+        <div id="wrapColTakeaway" class="bg-white border border-slate-200/90 rounded-3xl flex flex-col overflow-hidden shadow-sm">
+          <div class="px-4 py-3 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2 font-extrabold text-sm text-sky-800">
+                <i data-lucide="shopping-bag" class="w-4 h-4 text-sky-600"></i>
+                <span>Takeaway Queue</span>
+              </div>
+              <div id="subTakeaway" class="text-[10px] text-slate-500 font-medium">Express counter pickups</div>
+            </div>
+            <span id="countTakeaway" class="font-mono bg-sky-50 border border-sky-200 text-sky-800 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
+          </div>
+          <div id="colTakeaway" class="p-3.5 space-y-3 flex-1 overflow-y-auto max-h-[calc(100vh-270px)] bg-slate-50/50"></div>
+        </div>
+
+        <!-- Col 3: Delivery Queue -->
+        <div id="wrapColDelivery" class="bg-white border border-slate-200/90 rounded-3xl flex flex-col overflow-hidden shadow-sm">
+          <div class="px-4 py-3 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2 font-extrabold text-sm text-purple-800">
+                <i data-lucide="truck" class="w-4 h-4 text-purple-600"></i>
+                <span>Delivery Queue</span>
+              </div>
+              <div id="subDelivery" class="text-[10px] text-slate-500 font-medium">Doorstep drop-offs</div>
+            </div>
+            <span id="countDelivery" class="font-mono bg-purple-50 border border-purple-200 text-purple-800 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
+          </div>
+          <div id="colDelivery" class="p-3.5 space-y-3 flex-1 overflow-y-auto max-h-[calc(100vh-270px)] bg-slate-50/50"></div>
+        </div>
+      </main>
+    </div>
+
+    <!-- TAB 2: MENU & INVENTORY MANAGER -->
+    <div id="tabViewMenu" class="dash-view hidden flex-1 p-4 lg:p-6 space-y-4 max-w-7xl mx-auto w-full">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm">
+        <div>
+          <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+            <i data-lucide="package" class="w-4 h-4 text-brand-600"></i>
+            <span>Live Catalog & Stock Control</span>
+          </h2>
+          <p class="text-xs text-slate-500">Update pricing in real-time or toggle stock status when kitchen runs low on ingredients.</p>
+        </div>
+        <button onclick="openModal('addDishModal')" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold text-xs rounded-2xl shadow-sm transition-all flex items-center gap-1.5">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>Add New Dish</span>
+        </button>
+      </div>
+
+      <div class="bg-white border border-slate-200/90 rounded-3xl overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+              <tr>
+                <th class="py-3.5 px-4">Item & Description</th>
+                <th class="py-3.5 px-4">Category</th>
+                <th class="py-3.5 px-4">Sale Price</th>
+                <th class="py-3.5 px-4">Cost & Margin</th>
+                <th class="py-3.5 px-4">Nutrition</th>
+                <th class="py-3.5 px-4">Bestseller</th>
+                <th class="py-3.5 px-4 text-center">In Stock</th>
+                <th class="py-3.5 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminMenuTableBody" class="divide-y divide-slate-100">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: PROMOS & RETENTION ENGINE -->
+    <div id="tabViewPromos" class="dash-view hidden flex-1 p-4 lg:p-6 space-y-4 max-w-7xl mx-auto w-full">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm">
+        <div>
+          <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+            <i data-lucide="ticket" class="w-4 h-4 text-brand-600"></i>
+            <span>Promotional Codes & Retention Engine</span>
+          </h2>
+          <p class="text-xs text-slate-500">Manage campaign discounts and track dynamic 7-day single-use bounce-back vouchers.</p>
+        </div>
+        <button onclick="openModal('createPromoModal')" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold text-xs rounded-2xl shadow-sm transition-all flex items-center gap-1.5">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>Create Promo Code</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="adminPromosList">
+        <!-- Dynamically populated -->
+      </div>
+    </div>
+
+    <!-- TAB 4: ADVANCE CAPACITY PLANNER -->
+    <div id="tabViewSlots" class="dash-view hidden flex-1 p-4 lg:p-6 space-y-4 max-w-5xl mx-auto w-full">
+      <div class="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+            <i data-lucide="sliders" class="w-4 h-4 text-brand-600"></i>
+            <span>30-Minute Advance Slot Booking Caps</span>
+          </h2>
+          <p class="text-xs text-slate-500">Set maximum orders per 30-minute interval to prevent prep bottlenecks during peak rush hours.</p>
+        </div>
+        <input type="date" id="adminSlotDatePicker" onchange="loadDateCapacity(this.value)" class="bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-xl px-3 py-2 font-bold focus:outline-none focus:border-brand-500">
+      </div>
+
+      <div class="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-sm">
+        <div id="capacitySlotsList" class="space-y-2 max-h-[600px] overflow-y-auto pr-1"></div>
+      </div>
+    </div>
+
+    <!-- TAB 5: BUSINESS ANALYTICS & INSIGHTS -->
+    <div id="tabViewAnalytics" class="dash-view hidden flex-1 p-4 lg:p-6 space-y-6 max-w-7xl mx-auto w-full">
+      <div class="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+            <i data-lucide="bar-chart-3" class="w-4 h-4 text-brand-600"></i>
+            <span>Operations & Sales Intelligence</span>
+          </h2>
+          <p class="text-xs text-slate-500">Real-time performance indicators and revenue analysis without third-party commission deductions.</p>
+        </div>
+        <!-- Financial Accounting Export Toolbar -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <a href="/api/admin/export/orders.csv" download class="px-3.5 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold rounded-2xl flex items-center gap-1.5 transition-all shadow-sm">
+            <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <span>Export Orders CSV</span>
+          </a>
+          <a href="/api/admin/export/daily-closing.csv" download class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-2xl flex items-center gap-1.5 transition-all shadow-sm">
+            <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+            <span>Daily Closing Report</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- KPI Summary Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white border border-slate-200/90 p-5 rounded-3xl space-y-1 shadow-sm">
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Gross Sales</div>
+          <div id="metricGrossRev" class="text-2xl font-black font-mono text-emerald-600">₹0</div>
+          <div class="text-[11px] text-slate-400">100% Commission-Free</div>
+        </div>
+
+        <div class="bg-white border border-slate-200/90 p-5 rounded-3xl space-y-1 shadow-sm">
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Orders</div>
+          <div id="metricTotalOrders" class="text-2xl font-black font-mono text-sky-600">0</div>
+          <div class="text-[11px] text-slate-400">Dine-In, Takeaway, Delivery</div>
+        </div>
+
+        <div class="bg-white border border-slate-200/90 p-5 rounded-3xl space-y-1 shadow-sm">
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Average Order (AOV)</div>
+          <div id="metricAOV" class="text-2xl font-black font-mono text-amber-600">₹0</div>
+          <div class="text-[11px] text-slate-400">Per Customer Check</div>
+        </div>
+
+        <div class="bg-white border border-slate-200/90 p-5 rounded-3xl space-y-1 shadow-sm">
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Retention Redemption</div>
+          <div id="metricRetentionRate" class="text-2xl font-black font-mono text-purple-600">0%</div>
+          <div class="text-[11px] text-slate-400" id="metricRetentionSub">0 redeemed</div>
+        </div>
+      </div>
+
+      <!-- Order Channels & Top Dishes Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Channel Breakdown -->
+        <div class="bg-white border border-slate-200/90 p-5 rounded-3xl space-y-4 shadow-sm">
+          <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+            <i data-lucide="pie-chart" class="w-4 h-4 text-brand-600"></i>
+            <span>Ordering Mode Distribution</span>
+          </h3>
+          <div id="orderChannelBreakdown" class="space-y-3">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Top Selling Dishes -->
+        <div class="bg-white border border-slate-200/90 p-5 rounded-3xl space-y-4 shadow-sm">
+          <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+            <i data-lucide="star" class="w-4 h-4 text-amber-500 fill-amber-500"></i>
+            <span>Top 5 Bestselling Dishes</span>
+          </h3>
+          <div id="topDishesList" class="space-y-2">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: STORE PROFILE & SETTINGS -->
+    <div id="tabViewSettings" class="dash-view hidden flex-1 p-4 lg:p-6 space-y-6 max-w-4xl mx-auto w-full">
+      <div class="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+            <i data-lucide="store" class="w-4 h-4 text-brand-600"></i>
+            <span>Store Profile, Branding & Local Location</span>
+          </h2>
+          <p class="text-xs text-slate-500">Configure your cafe name, tagline, description, local address, and customer announcement in real time.</p>
+        </div>
+        <button onclick="saveStoreSettings(event)" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold text-xs rounded-2xl shadow-sm transition-all flex items-center gap-1.5">
+          <i data-lucide="check" class="w-4 h-4"></i>
+          <span>Save Changes</span>
+        </button>
+      </div>
+
+      <div class="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-sm space-y-4 text-xs">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Store Name / Title</label>
+            <input type="text" id="settingStoreName" required class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3.5 py-2.5 rounded-2xl font-bold focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Tagline</label>
+            <input type="text" id="settingTagline" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3.5 py-2.5 rounded-2xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Description</label>
+          <textarea id="settingDescription" rows="2" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3.5 py-2.5 rounded-2xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Local Location / Neighborhood Name</label>
+            <input type="text" id="settingLocationName" required placeholder="e.g. Connaught Place, New Delhi" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3.5 py-2.5 rounded-2xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Operating Hours</label>
+            <input type="text" id="settingOpeningHours" placeholder="e.g. 10:00 AM – 10:30 PM Daily" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3.5 py-2.5 rounded-2xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Full Physical Street Address</label>
+            <input type="text" id="settingFullAddress" placeholder="Shop / Building, Street, Area, City" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3.5 py-2.5 rounded-2xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Phone / WhatsApp Contact</label>
+            <input type="text" id="settingPhone" placeholder="+91 98765 43210" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3.5 py-2.5 rounded-2xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Store Announcement Banner</label>
+          <input type="text" id="settingAnnouncement" placeholder="Welcome announcement visible on customer storefront" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3.5 py-2.5 rounded-2xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 7: OUTLETS & FRANCHISE MANAGEMENT (NEW) -->
+    <div id="tabViewOutlets" class="dash-view hidden flex-1 p-4 lg:p-6 space-y-6 max-w-7xl mx-auto w-full">
+      <div class="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+            <i data-lucide="building-2" class="w-4 h-4 text-brand-600"></i>
+            <span>Restaurants & Outlets Network</span>
+          </h2>
+          <p class="text-xs text-slate-500">Manage franchise locations, branch operating hours, table counts, and multi-store operations.</p>
+        </div>
+        <button onclick="openModal('addOutletModal')" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-extrabold text-xs rounded-2xl shadow-sm transition-all flex items-center gap-1.5">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>Add New Restaurant Branch</span>
+        </button>
+      </div>
+
+      <!-- Outlets Grid -->
+      <div id="adminOutletsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5">
+        <!-- Dynamically populated -->
+      </div>
+    </div>
+
+    <!-- TAB 8: AI WASTE-TO-PROFIT ENGINE -->
+    <div id="tabViewWaste" class="dash-view hidden flex-1 p-4 lg:p-6 space-y-6 max-w-7xl mx-auto w-full">
+      <div class="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+              <i data-lucide="leaf" class="w-4 h-4"></i>
+            </span>
+            <span>AI Waste-to-Profit Engine</span>
+          </h2>
+          <p class="text-xs text-slate-500">Predict daily food demand, surplus spoilage risk, and trigger dynamic flash discounts to turn waste into profit.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="renderKitchenWasteEngine()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-2xl transition-all flex items-center gap-1.5 shadow-xs">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Re-Analyze Inventory</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Container injected by waste-profit.js -->
+      <div id="wasteEngineTabContent"></div>
+    </div>
+
+    <!-- TAB 9: AI MARKETING AUTOPILOT -->
+    <div id="tabViewMarketing" class="dash-view hidden flex-1 p-4 lg:p-6 space-y-6 max-w-7xl mx-auto w-full">
+      <div class="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+              <i data-lucide="send" class="w-4 h-4"></i>
+            </span>
+            <span>AI Marketing Autopilot & WhatsApp Engine</span>
+          </h2>
+          <p class="text-xs text-slate-500">Autonomous RFM customer segmentation, 1-click personalized WhatsApp offers, and churn win-back campaigns.</p>
+        </div>
+        <button onclick="loadAdminMarketing()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-2xl transition-all flex items-center gap-1.5 shadow-xs">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>Refresh Segments</span>
+        </button>
+      </div>
+
+      <!-- Content injected by kitchen.js -->
+      <div id="marketingTabContent" class="space-y-6"></div>
+    </div>
+
+    <!-- TAB 10: GROUP HUNGER NETWORK POOLS -->
+    <div id="tabViewGrouppools" class="dash-view hidden flex-1 p-4 lg:p-6 space-y-6 max-w-7xl mx-auto w-full">
+      <div class="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+              <i data-lucide="users" class="w-4 h-4"></i>
+            </span>
+            <span>Group Hunger Network Monitor</span>
+          </h2>
+          <p class="text-xs text-slate-500">Monitor active student hostels, tech park offices, and housing societies combining orders to unlock pooled discounts.</p>
+        </div>
+        <button onclick="loadAdminGroupPools()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-2xl transition-all flex items-center gap-1.5 shadow-xs">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>Refresh Pools</span>
+        </button>
+      </div>
+
+      <!-- Content injected by kitchen.js -->
+      <div id="groupPoolsTabContent" class="space-y-6"></div>
+    </div>
+
+    <!-- TAB 11: BHARAT OFFLINE HUB -->
+    <div id="tabViewBharat" class="dash-view hidden flex-1 p-4 lg:p-6 space-y-6 max-w-7xl mx-auto w-full">
+      <div class="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-orange-100 text-brand-700 flex items-center justify-center">
+              <i data-lucide="wifi" class="w-4 h-4"></i>
+            </span>
+            <span>Offline-First Bharat Mode Operations Hub</span>
+          </h2>
+          <p class="text-xs text-slate-500">Zero-Internet POS continuity, background sync queue, and 8-language regional diagnostics.</p>
+        </div>
+        <button onclick="loadAdminBharatOffline()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-2xl transition-all flex items-center gap-1.5 shadow-xs">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>Check Node Status</span>
+        </button>
+      </div>
+
+      <!-- Content injected by kitchen.js -->
+      <div id="bharatOfflineTabContent" class="space-y-6"></div>
+    </div>
+
+    <!-- KDS Footer Watermark -->
+    <footer class="py-3 px-4 bg-white border-t border-slate-200 text-center text-xs text-slate-500 font-medium">
+      RasoiLink Operations • Engineered by <a href="https://github.com/akshdeepsingh7/RasoiLink" target="_blank" rel="noopener noreferrer" class="text-slate-800 hover:text-amber-600 font-bold underline underline-offset-2">Team TrueAddams</a> (<a href="https://github.com/akshdeepsingh7" target="_blank" rel="noopener noreferrer" class="hover:underline">Akshdeep Singh</a> - Leader, Paras Gupta, Prince Pratik, Akashdeep Singh) • <a href="https://github.com/akshdeepsingh7/RasoiLink" target="_blank" rel="noopener noreferrer" class="hover:underline text-slate-700">GitHub Repo</a>
+    </footer>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 3. DIALOG MODALS & OVERLAYS: Clean Minimalist White UI -->
+  <!-- ======================================================== -->
+
+  <!-- Modal Backdrop -->
+  <div id="kdsModalBackdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+  <!-- Add New Dish Modal -->
+  <div id="addDishModal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-lg bg-white border border-slate-200/90 rounded-3xl p-6 z-50 shadow-2xl opacity-0 pointer-events-none transition-all duration-300 max-h-[85vh] flex flex-col space-y-3">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+      <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+        <i data-lucide="plus" class="w-4 h-4 text-brand-600"></i>
+        <span>Add Menu Item</span>
+      </h3>
+      <button onclick="closeAllModals()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold hover:bg-slate-200 transition-all">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <form onsubmit="handleCreateDish(event)" class="overflow-y-auto space-y-3 pr-1 flex-1 text-xs">
+      <div>
+        <label class="block font-bold text-slate-700 mb-1">Dish Name</label>
+        <input type="text" id="newDishName" required placeholder="e.g. Tandoori Paneer Tikka" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Category</label>
+          <select id="newDishCategory" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+            <option value="1">Chai & Brews</option>
+            <option value="2">Artisanal Chaat</option>
+            <option value="3">Parathas & Meals</option>
+            <option value="4">Biryani & Bowls</option>
+            <option value="5">Desserts & Mithai</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Sale Price (₹)</label>
+          <input type="number" id="newDishPrice" step="0.5" required placeholder="180" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Cost Price (₹)</label>
+          <input type="number" id="newDishCost" step="0.5" placeholder="60" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all" title="Used for margin-safe discount calculations">
+        </div>
+      </div>
+      <div>
+        <label class="block font-bold text-slate-700 mb-1">Description</label>
+        <textarea id="newDishDesc" required rows="2" placeholder="Description of fresh ingredients and culinary style..." class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all"></textarea>
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Dietary</label>
+          <select id="newDishVeg" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-2 py-2 rounded-xl">
+            <option value="1">Vegetarian</option>
+            <option value="0">Non-Veg</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Spice Level</label>
+          <select id="newDishSpice" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-2 py-2 rounded-xl">
+            <option value="Mild">Mild</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Spicy">Spicy</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Prep Time (min)</label>
+          <input type="number" id="newDishPrepTime" value="15" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-2 py-2 rounded-xl text-center">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Calories (kcal)</label>
+          <input type="number" id="newDishCalories" value="320" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Allergens</label>
+          <input type="text" id="newDishAllergens" value="Dairy, Gluten" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl">
+        </div>
+      </div>
+      <div>
+        <label class="block font-bold text-slate-700 mb-1">Image URL (Optional)</label>
+        <input type="url" id="newDishImage" placeholder="https://images.unsplash.com/..." class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+      </div>
+      <button type="submit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-2xl shadow-sm transition-all">
+        Save Dish to Live Catalog
+      </button>
+    </form>
+  </div>
+
+  <!-- Edit Dish Modal -->
+  <div id="editDishModal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-lg bg-white border border-slate-200/90 rounded-3xl p-6 z-50 shadow-2xl opacity-0 pointer-events-none transition-all duration-300 max-h-[85vh] flex flex-col space-y-3">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+      <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+        <i data-lucide="edit-3" class="w-4 h-4 text-brand-600"></i>
+        <span>Edit Menu Dish Details</span>
+      </h3>
+      <button onclick="closeAllModals()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold hover:bg-slate-200 transition-all">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <form onsubmit="handleSaveEditDish(event)" class="overflow-y-auto space-y-3 pr-1 flex-1 text-xs">
+      <input type="hidden" id="editDishId">
+      <div>
+        <label class="block font-bold text-slate-700 mb-1">Dish Title / Name</label>
+        <input type="text" id="editDishName" required class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white font-bold transition-all">
+      </div>
+      <div>
+        <label class="block font-bold text-slate-700 mb-1">Description</label>
+        <textarea id="editDishDesc" rows="2" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all"></textarea>
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Category</label>
+          <select id="editDishCategory" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-2 py-2 rounded-xl">
+            <option value="1">Chai & Brews</option>
+            <option value="2">Artisanal Chaat</option>
+            <option value="3">Parathas & Meals</option>
+            <option value="4">Biryani & Bowls</option>
+            <option value="5">Desserts & Mithai</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Sale Price (₹)</label>
+          <input type="number" id="editDishPrice" step="0.5" required oninput="calculateMarginPreview()" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl font-bold">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Cost Price (₹)</label>
+          <input type="number" id="editDishCost" step="0.5" oninput="calculateMarginPreview()" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl font-bold">
+        </div>
+      </div>
+      <!-- Live Margin Calculation Indicator -->
+      <div id="editDishMarginNotice" class="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-[11px] text-emerald-800 flex items-center justify-between font-mono">
+        <span>Profit Margin: ₹0.00</span>
+        <span class="font-bold">0% Margin</span>
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Spice Level</label>
+          <select id="editDishSpice" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-2 py-2 rounded-xl">
+            <option value="Mild">Mild</option>
+            <option value="Medium">Medium</option>
+            <option value="Spicy">Spicy</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Calories (kcal)</label>
+          <input type="number" id="editDishCalories" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-2 py-2 rounded-xl text-center">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Allergens</label>
+          <input type="text" id="editDishAllergens" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-2 py-2 rounded-xl">
+        </div>
+      </div>
+      <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+        <label class="flex items-center gap-2 cursor-pointer text-slate-700">
+          <input type="checkbox" id="editDishBestseller" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+          <span>Mark as Bestseller</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer text-slate-700">
+          <input type="checkbox" id="editDishAvailable" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+          <span>Currently in Stock</span>
+        </label>
+      </div>
+      <button type="submit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-2xl shadow-sm transition-all">
+        Save Dish Updates
+      </button>
+    </form>
+  </div>
+
+  <!-- Create Promo Code Modal -->
+  <div id="createPromoModal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-lg bg-white border border-slate-200/90 rounded-3xl p-6 z-50 shadow-2xl opacity-0 pointer-events-none transition-all duration-300 max-h-[85vh] flex flex-col space-y-3">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+      <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+        <i data-lucide="ticket" class="w-4 h-4 text-brand-600"></i>
+        <span>Create Loyalty or Regular Customer Promo</span>
+      </h3>
+      <button onclick="closeAllModals()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold hover:bg-slate-200 transition-all">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <form onsubmit="handleCreatePromo(event)" class="overflow-y-auto space-y-3 pr-1 flex-1 text-xs">
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Promo Code</label>
+          <input type="text" id="newPromoCode" required placeholder="e.g. REGULAR20" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl font-mono uppercase font-bold focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Campaign Title</label>
+          <input type="text" id="newPromoTitle" placeholder="e.g. Cafe Regular Club 20% OFF" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white font-bold transition-all">
+        </div>
+      </div>
+      <div>
+        <label class="block font-bold text-slate-700 mb-1">Description / Offer Details</label>
+        <input type="text" id="newPromoDesc" placeholder="e.g. Exclusive reward for returning patrons with 3+ visits" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Customer Frequency Tier</label>
+          <select id="newPromoTier" onchange="syncPromoTierVisits(this.value)" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl font-bold">
+            <option value="ALL">All Diners (Open Promo)</option>
+            <option value="FIRST_TIME">First-Time Diners Only (0 visits)</option>
+            <option value="REPEAT">Repeat Diners (1+ visits)</option>
+            <option value="REGULAR" selected>Regular Club (3+ visits)</option>
+            <option value="VIP">VIP TrueAddams Circle (5+ visits)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Min Prior Completed Orders</label>
+          <input type="number" id="newPromoMinVisits" value="3" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl font-bold">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Discount Type</label>
+          <select id="newPromoType" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl">
+            <option value="PERCENT">Percentage (%)</option>
+            <option value="FLAT">Flat Amount (₹)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Discount Value</label>
+          <input type="number" id="newPromoVal" required step="1" placeholder="20" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl font-bold">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Min Order Value (₹)</label>
+          <input type="number" id="newPromoMinOrder" value="200" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Max Discount Cap (₹)</label>
+          <input type="number" id="newPromoMaxDisc" value="100" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Dish Margin Protection Cap (%)</label>
+          <input type="number" id="newPromoMarginShare" value="50" min="10" max="80" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl font-bold" title="Max % of cart profit margin allowed as discount to strictly prevent losses">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Validity (Days)</label>
+          <input type="number" id="newPromoDays" value="60" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl">
+        </div>
+      </div>
+      <div class="p-2.5 bg-slate-50 rounded-2xl border border-slate-200 text-[11px] text-slate-600">
+        <strong class="text-brand-600">Margin-Safe Guarantee:</strong> Discount will never exceed the specified share of food margin. The restaurant is guaranteed profitable on every ticket.
+      </div>
+      <button type="submit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-2xl shadow-sm transition-all">
+        Activate Loyalty Promo Code
+      </button>
+    </form>
+  </div>
+
+  <!-- Add New Restaurant Outlet Modal (NEW) -->
+  <div id="addOutletModal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-lg bg-white border border-slate-200/90 rounded-3xl p-6 z-50 shadow-2xl opacity-0 pointer-events-none transition-all duration-300 max-h-[85vh] flex flex-col space-y-3">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+      <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+        <i data-lucide="building-2" class="w-4 h-4 text-brand-600"></i>
+        <span>Register New Restaurant Branch</span>
+      </h3>
+      <button onclick="closeAllModals()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold hover:bg-slate-200 transition-all">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <form onsubmit="handleCreateOutlet(event)" class="overflow-y-auto space-y-3 pr-1 flex-1 text-xs">
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Branch Name</label>
+          <input type="text" id="newOutletName" required placeholder="e.g. RasoiLink Gourmet Bistro" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white font-bold transition-all">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Unique Outlet Slug / ID</label>
+          <input type="text" id="newOutletId" placeholder="e.g. cyberhub" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl font-mono focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+        </div>
+      </div>
+      <div>
+        <label class="block font-bold text-slate-700 mb-1">Location / Neighborhood</label>
+        <input type="text" id="newOutletLocation" required placeholder="e.g. DLF Cyber Hub, Gurugram" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+      </div>
+      <div>
+        <label class="block font-bold text-slate-700 mb-1">Full Physical Street Address</label>
+        <input type="text" id="newOutletAddress" required placeholder="Unit 2A, Ground Floor, DLF Cyber Hub, Gurugram" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">City</label>
+          <input type="text" id="newOutletCity" value="New Delhi" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Contact Phone</label>
+          <input type="text" id="newOutletPhone" required placeholder="+91 98765 43210" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Cuisine Specialty</label>
+          <input type="text" id="newOutletCuisine" value="Artisanal Indian Bites & Tapri Brews" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Operating Hours</label>
+          <input type="text" id="newOutletHours" value="10:00 AM - 10:30 PM Daily" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Table Count</label>
+          <input type="number" id="newOutletTables" value="20" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl text-center">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Est. Delivery Time</label>
+          <input type="text" id="newOutletDeliveryTime" value="25-35 mins" class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl">
+        </div>
+      </div>
+      <div>
+        <label class="block font-bold text-slate-700 mb-1">Branch Photo URL (Optional)</label>
+        <input type="url" id="newOutletImage" placeholder="https://images.unsplash.com/photo-..." class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3 py-2 rounded-xl focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+      </div>
+      <button type="submit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-2xl shadow-sm transition-all">
+        Launch Restaurant Outlet
+      </button>
+    </form>
+  </div>
+
+  <!-- Table QR Tent Card Generator Modal -->
+  <div id="qrModal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md bg-white border border-slate-200/90 rounded-3xl p-6 z-50 shadow-2xl opacity-0 pointer-events-none transition-all duration-300 max-h-[85vh] flex flex-col space-y-3">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+      <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+        <i data-lucide="qr-code" class="w-4 h-4 text-brand-600"></i>
+        <span>Table QR Generator</span>
+      </h3>
+      <button onclick="closeAllModals()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold hover:bg-slate-200 transition-all">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <div class="flex gap-2">
+      <select id="qrTypeSelect" class="flex-1 bg-slate-50 border border-slate-200 text-slate-900 text-xs rounded-xl px-3 py-2" onchange="updateQRPreview()">
+        <option value="TABLE">Dine-In Table</option>
+        <option value="TAKEAWAY">Takeaway Counter</option>
+        <option value="GENERAL">General Storefront</option>
+      </select>
+      <input type="number" id="qrTableInput" min="1" max="50" value="5" class="w-20 bg-slate-50 border border-slate-200 text-slate-900 text-xs rounded-xl px-3 py-2 text-center font-bold" placeholder="Table #" oninput="updateQRPreview()">
+    </div>
+
+    <div class="bg-slate-50 rounded-2xl p-5 text-slate-900 flex flex-col items-center text-center space-y-2 border border-slate-200">
+      <div id="qrPrintableCard" class="border-2 border-slate-900 rounded-2xl p-4 bg-white w-full max-w-[240px] flex flex-col items-center shadow-sm">
+        <div class="text-base font-black tracking-tight text-slate-900">RasoiLink</div>
+        <div id="qrCardLabel" class="text-lg font-black text-brand-700 pb-1">TABLE 5</div>
+        <div id="qrSvgHolder" class="p-2 bg-white rounded-xl shadow-sm my-1"></div>
+        <div class="text-[10px] text-slate-500 font-semibold pt-1">Scan to browse catalog & order directly</div>
+      </div>
+      <button onclick="printQRCodeCard()" class="bg-slate-900 hover:bg-black text-white text-xs font-bold py-2.5 px-6 rounded-full shadow-sm transition-all flex items-center gap-1.5 mt-2">
+        <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+        <span>Print Tent Card</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Audio Synthesizer Settings Modal -->
+  <div id="audioSettingsModal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-white border border-slate-200/90 rounded-3xl p-6 z-50 shadow-2xl opacity-0 pointer-events-none transition-all duration-300 flex flex-col space-y-4">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+      <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+        <i data-lucide="volume-2" class="w-4 h-4 text-brand-600"></i>
+        <span>Audio Synthesizer Settings</span>
+      </h3>
+      <button onclick="closeAllModals()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold hover:bg-slate-200 transition-all">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <div class="space-y-4 text-xs">
+      <div>
+        <div class="flex justify-between font-bold text-slate-700 mb-1.5">
+          <span>Synthesizer Volume</span>
+          <span id="audioVolumeLabel" class="font-mono text-brand-600">50%</span>
+        </div>
+        <input type="range" id="audioVolumeRange" min="10" max="100" value="50" oninput="updateAudioVolume(this.value)" class="w-full accent-brand-600 bg-slate-200 h-2 rounded-lg cursor-pointer">
+      </div>
+      <div>
+        <label class="block font-bold text-slate-700 mb-1.5">Alert Tone Profile</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="setAudioTone('chime')" class="audio-tone-btn py-2 px-3 rounded-xl border border-slate-200 text-left font-bold transition-all bg-brand-600 text-white shadow-sm" data-tone="chime">
+            Modern Chime
+          </button>
+          <button type="button" onclick="setAudioTone('bell')" class="audio-tone-btn py-2 px-3 rounded-xl border border-slate-200 text-left font-bold transition-all bg-slate-50 text-slate-700 hover:bg-slate-100" data-tone="bell">
+            Counter Bell
+          </button>
+          <button type="button" onclick="setAudioTone('buzzer')" class="audio-tone-btn py-2 px-3 rounded-xl border border-slate-200 text-left font-bold transition-all bg-slate-50 text-slate-700 hover:bg-slate-100" data-tone="buzzer">
+            Kitchen Buzzer
+          </button>
+          <button type="button" onclick="setAudioTone('marimba')" class="audio-tone-btn py-2 px-3 rounded-xl border border-slate-200 text-left font-bold transition-all bg-slate-50 text-slate-700 hover:bg-slate-100" data-tone="marimba">
+            Soft Marimba
+          </button>
+        </div>
+      </div>
+      <div class="pt-2">
+        <button onclick="testAudioChime()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-2xl border border-slate-200 flex items-center justify-center gap-1.5 transition-all">
+          <i data-lucide="play" class="w-3.5 h-3.5 text-brand-600"></i>
+          <span>Preview Tone</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/static/js/qrcode-generator.js"></script>
+  <script src="/static/js/i18n.js"></script>
+  <script src="/static/js/offline-sync.js"></script>
+  <script src="/static/js/waste-profit.js"></script>
+  <script src="/static/js/kitchen.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

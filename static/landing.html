@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#c2410c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>RasoiLink — Artisanal Indian Dining, Chai Bar & Easy Mobile Ordering</title>
+  
+  <!-- Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#FFF7ED',
+              100: '#FFEDD5',
+              200: '#FED7AA',
+              300: '#FDBA74',
+              400: '#FB923C',
+              500: '#F97316',
+              600: '#EA580C',
+              700: '#C2410C',
+              800: '#9A3412',
+              900: '#7C2D12',
+            }
+          },
+          boxShadow: {
+            'soft': '0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 4px 10px -2px rgba(0, 0, 0, 0.02)',
+            'card': '0 14px 34px -8px rgba(0, 0, 0, 0.06), 0 4px 14px -3px rgba(0, 0, 0, 0.03)',
+            'glow': '0 0 40px -10px rgba(234, 88, 12, 0.25)',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #FAF8F5; }
+    ::-webkit-scrollbar-thumb { background: #D6D3D1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #A8A29E; }
+  </style>
+</head>
+<body class="bg-[#FAF8F5] text-stone-900 font-sans antialiased selection:bg-brand-500 selection:text-white min-h-screen flex flex-col">
+
+  <!-- Top Announcement & Location Bar -->
+  <aside aria-label="Store Information" class="bg-stone-900 text-stone-300 text-xs py-2.5 px-4 text-center font-medium border-b border-stone-800">
+    <div class="max-w-7xl mx-auto flex items-center justify-center gap-2 flex-wrap">
+      <span class="inline-flex items-center gap-1.5 font-bold text-amber-400">
+        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-400"></i>
+        <span>Connaught Place, New Delhi</span>
+      </span>
+      <span class="text-stone-600 hidden sm:inline">•</span>
+      <span class="inline-flex items-center gap-1 text-stone-300">
+        <i data-lucide="clock" class="w-3.5 h-3.5 text-stone-400"></i>
+        <span>Open Daily: 10:00 AM - 11:00 PM</span>
+      </span>
+      <span class="text-stone-600 hidden sm:inline">•</span>
+      <span class="text-stone-300">Dine-In, Express Takeaway & Fast Doorstep Delivery</span>
+      <span class="text-stone-600 hidden sm:inline">•</span>
+      <a href="/" class="text-brand-400 font-bold hover:text-brand-300 underline underline-offset-2 ml-1 inline-flex items-center gap-1">
+        <span>Order Now</span>
+        <i data-lucide="arrow-right" class="w-3 h-3"></i>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Sticky Header Navigation -->
+  <header class="sticky top-0 z-50 bg-[#FAF8F5]/90 backdrop-blur-md border-b border-stone-200/80 transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="/landing" class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-brand-500 rounded-xl p-1">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white flex items-center justify-center shadow-md shadow-brand-500/25 group-hover:scale-105 transition-transform">
+          <i data-lucide="utensils" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <span class="text-xl font-extrabold tracking-tight text-stone-900 leading-none">RasoiLink</span>
+          <span class="block text-[11px] uppercase tracking-wider text-brand-600 font-bold mt-0.5">Artisanal Cafe & Kitchen</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links (Clean Consumer Focused) -->
+      <nav class="hidden lg:flex items-center gap-7 text-sm font-semibold text-stone-600">
+        <a href="#how-to-order" class="hover:text-brand-600 transition-colors">How to Order</a>
+        <a href="#dining-modes" class="hover:text-brand-600 transition-colors">Dining Choices</a>
+        <a href="#popular-dishes" class="hover:text-brand-600 transition-colors">Popular Specials</a>
+        <a href="#experience" class="hover:text-brand-600 transition-colors">Guest Experience</a>
+        <a href="#loyalty" class="hover:text-brand-600 transition-colors">Club Rewards</a>
+        <a href="#story" class="hover:text-brand-600 transition-colors">Our Story</a>
+        <a href="#faq" class="hover:text-brand-600 transition-colors">FAQ</a>
+      </nav>
+
+      <!-- Action Buttons & Mobile Hamburger -->
+      <div class="flex items-center gap-2 sm:gap-2.5">
+        <a href="https://github.com/akshdeepsingh7/RasoiLink" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold text-stone-600 bg-white hover:bg-stone-100 border border-stone-200 shadow-sm transition-all" title="View Source on GitHub">
+          <i data-lucide="github" class="w-3.5 h-3.5 text-stone-700"></i>
+          <span class="hidden sm:inline">GitHub</span>
+        </a>
+        <a href="/kitchen.html" class="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold text-stone-600 bg-white hover:bg-stone-100 border border-stone-200 shadow-sm transition-all" title="Staff & Management Portal">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-stone-500"></i>
+          <span class="hidden sm:inline">Staff Portal</span>
+        </a>
+        <a href="/" class="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-extrabold text-white bg-brand-600 hover:bg-brand-500 shadow-md shadow-brand-500/25 transition-all">
+          <span>Order Online</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </a>
+        <button onclick="toggleLandingMobileMenu()" id="btnLandingMobileMenu" class="lg:hidden p-2 rounded-xl text-stone-700 bg-white hover:bg-stone-100 border border-stone-200 transition-all flex items-center justify-center active:scale-95 shadow-sm" aria-label="Toggle navigation menu">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Slide-Over Drawer -->
+  <div id="landingMobileBackdrop" onclick="toggleLandingMobileMenu()" class="fixed inset-0 bg-stone-950/60 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"></div>
+  <div id="landingMobileDrawer" class="fixed top-0 right-0 bottom-0 w-[280px] max-w-[80vw] bg-white z-50 shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 lg:hidden">
+    <div class="p-5 border-b border-stone-100 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-sm">
+          <i data-lucide="utensils" class="w-4 h-4 text-white"></i>
+        </div>
+        <span class="text-base font-extrabold text-stone-900">RasoiLink</span>
+      </div>
+      <button onclick="toggleLandingMobileMenu()" class="w-8 h-8 rounded-full bg-stone-100 text-stone-600 flex items-center justify-center text-xs font-bold hover:bg-stone-200 transition-all">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <div class="flex-1 overflow-y-auto p-4 space-y-2 text-sm font-bold text-stone-700">
+      <a href="#how-to-order" onclick="toggleLandingMobileMenu()" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-orange-50 hover:text-brand-600 transition-all">
+        <span>How to Order</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-stone-400"></i>
+      </a>
+      <a href="#dining-modes" onclick="toggleLandingMobileMenu()" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-orange-50 hover:text-brand-600 transition-all">
+        <span>Dining Choices</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-stone-400"></i>
+      </a>
+      <a href="#popular-dishes" onclick="toggleLandingMobileMenu()" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-orange-50 hover:text-brand-600 transition-all">
+        <span>Popular Specials</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-stone-400"></i>
+      </a>
+      <a href="#experience" onclick="toggleLandingMobileMenu()" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-orange-50 hover:text-brand-600 transition-all">
+        <span>Guest Experience</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-stone-400"></i>
+      </a>
+      <a href="#loyalty" onclick="toggleLandingMobileMenu()" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-orange-50 hover:text-brand-600 transition-all">
+        <span>Club Rewards</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-stone-400"></i>
+      </a>
+      <a href="#story" onclick="toggleLandingMobileMenu()" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-orange-50 hover:text-brand-600 transition-all">
+        <span>Our Story</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-stone-400"></i>
+      </a>
+      <a href="#faq" onclick="toggleLandingMobileMenu()" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-orange-50 hover:text-brand-600 transition-all">
+        <span>FAQ</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-stone-400"></i>
+      </a>
+
+      <div class="pt-4 border-t border-stone-100 space-y-2">
+        <a href="/kitchen.html" class="flex items-center gap-2 p-2.5 rounded-xl bg-stone-100 text-stone-800 text-xs font-bold hover:bg-stone-200 transition-all">
+          <i data-lucide="shield-check" class="w-4 h-4 text-brand-600"></i>
+          <span>Kitchen / Staff Portal</span>
+        </a>
+        <a href="/" class="flex items-center justify-center gap-2 p-3 rounded-xl bg-brand-600 text-white text-xs font-extrabold shadow-md shadow-brand-500/25 transition-all">
+          <span>Order Online Now</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="relative pt-16 pb-20 sm:pt-24 sm:pb-28 overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-100/60 via-[#FAF8F5] to-[#FAF8F5]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+      
+      <!-- Top Pill Badge -->
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-brand-200 text-brand-700 text-xs font-bold uppercase tracking-wider shadow-sm mb-6">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span>Artisanal Comfort Food • Direct Fair Pricing</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-stone-900 tracking-tight leading-[1.08] max-w-5xl mx-auto">
+        Handcrafted Indian Food,<br>
+        <span class="bg-gradient-to-r from-brand-600 via-amber-600 to-amber-700 bg-clip-text text-transparent">Made Fresh for You.</span>
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="mt-6 text-base sm:text-lg lg:text-xl text-stone-600 max-w-3xl mx-auto leading-relaxed font-normal">
+        Slow-brewed kulhad chai, butter-toasted Mumbai pav bhaji, fragrant biryanis, and crisp artisanal chaats. Order effortlessly from your phone at your table, pick up on the go, or enjoy doorstep delivery with zero inflated markups.
+      </p>
+
+      <!-- Primary Action CTA Cluster -->
+      <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5 max-w-2xl mx-auto">
+        <a href="/" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-sm font-extrabold text-white bg-brand-600 hover:bg-brand-500 shadow-xl shadow-brand-500/30 hover:-translate-y-0.5 transition-all">
+          <i data-lucide="utensils" class="w-4 h-4"></i>
+          <span>Explore Fresh Menu & Order</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+
+        <a href="/?table=5" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-sm font-bold text-stone-800 bg-white hover:bg-stone-50 border border-stone-200/90 shadow-sm hover:-translate-y-0.5 transition-all">
+          <i data-lucide="qr-code" class="w-4 h-4 text-brand-600"></i>
+          <span>Dine-In Table 5 Demo</span>
+        </a>
+
+        <a href="/#channels" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-sm font-bold text-stone-800 bg-white hover:bg-stone-50 border border-stone-200/90 shadow-sm hover:-translate-y-0.5 transition-all">
+          <i data-lucide="calendar" class="w-4 h-4 text-emerald-600"></i>
+          <span>Reserve a Table</span>
+        </a>
+      </div>
+
+      <!-- Consumer Trust Highlights -->
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-6 text-xs text-stone-500 font-semibold">
+        <span class="inline-flex items-center gap-1.5">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+          <span>No App Download Needed</span>
+        </span>
+        <span class="inline-flex items-center gap-1.5">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+          <span>Instant UPI & Card Checkout</span>
+        </span>
+        <span class="inline-flex items-center gap-1.5">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+          <span>Fresh Local Ingredients</span>
+        </span>
+        <span class="inline-flex items-center gap-1.5">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+          <span>100% Direct Fair Pricing</span>
+        </span>
+      </div>
+
+      <!-- Quick Highlights Grid -->
+      <div class="mt-14 max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
+        <div class="bg-white p-5 rounded-3xl border border-stone-200/90 shadow-soft">
+          <div class="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
+            <i data-lucide="flame" class="w-3.5 h-3.5 text-brand-600"></i>
+            <span>Freshly Cooked</span>
+          </div>
+          <div class="text-2xl font-black text-stone-900 mt-2">To Order</div>
+          <div class="text-xs text-stone-500 mt-1">Prepared hot right on our cookline</div>
+        </div>
+
+        <div class="bg-white p-5 rounded-3xl border border-stone-200/90 shadow-soft">
+          <div class="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
+            <i data-lucide="tag" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <span>Menu Pricing</span>
+          </div>
+          <div class="text-2xl font-black text-stone-900 mt-2">Zero Markup</div>
+          <div class="text-xs text-stone-500 mt-1">Direct from kitchen with no 30% aggregator cuts</div>
+        </div>
+
+        <div class="bg-white p-5 rounded-3xl border border-stone-200/90 shadow-soft">
+          <div class="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>
+            <span>Diner Loyalty</span>
+          </div>
+          <div class="text-2xl font-black text-stone-900 mt-2">Club Perks</div>
+          <div class="text-xs text-stone-500 mt-1">Welcome deals & repeat patron rewards</div>
+        </div>
+
+        <div class="bg-white p-5 rounded-3xl border border-stone-200/90 shadow-soft">
+          <div class="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
+            <i data-lucide="calendar-check" class="w-3.5 h-3.5 text-sky-500"></i>
+            <span>Advance Booking</span>
+          </div>
+          <div class="text-2xl font-black text-stone-900 mt-2">30-Min Slots</div>
+          <div class="text-xs text-stone-500 mt-1">Schedule meals for today or tomorrow</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- How to Order in 3 Simple Steps -->
+  <section id="how-to-order" class="py-20 bg-white border-y border-stone-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3 py-1 rounded-full border border-brand-200">Zero Hassle</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-stone-900 mt-3 tracking-tight">How It Works for You</h2>
+        <p class="text-stone-600 text-sm mt-3 leading-relaxed">No app installations. No long paper menus. No waiting around for the check.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <!-- Step 1 -->
+        <div class="bg-stone-50/80 rounded-3xl p-8 border border-stone-200/80 space-y-4 hover:shadow-card hover:-translate-y-1 transition-all duration-300">
+          <div class="w-12 h-12 rounded-2xl bg-brand-600 text-white font-black text-lg flex items-center justify-center shadow-md shadow-brand-500/20">
+            01
+          </div>
+          <h3 class="text-lg font-bold text-stone-900">Scan QR or Open Link</h3>
+          <p class="text-sm text-stone-600 leading-relaxed">
+            Scan the table card with your phone camera or visit RasoiLink on your phone browser. Your table number is instantly recognized, opening the fresh visual menu.
+          </p>
+          <div class="pt-2 text-xs font-bold text-stone-500 flex items-center gap-1.5">
+            <i data-lucide="check" class="w-4 h-4 text-emerald-600"></i>
+            <span>Works instantly on iPhone & Android</span>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="bg-stone-50/80 rounded-3xl p-8 border border-stone-200/80 space-y-4 hover:shadow-card hover:-translate-y-1 transition-all duration-300">
+          <div class="w-12 h-12 rounded-2xl bg-brand-600 text-white font-black text-lg flex items-center justify-center shadow-md shadow-brand-500/20">
+            02
+          </div>
+          <h3 class="text-lg font-bold text-stone-900">Customize & Add to Tray</h3>
+          <p class="text-sm text-stone-600 leading-relaxed">
+            See photos of every dish, check spice levels and calorie info, and customize your cooking instructions (extra ginger, mild chili, no cutlery).
+          </p>
+          <div class="pt-2 text-xs font-bold text-stone-500 flex items-center gap-1.5">
+            <i data-lucide="check" class="w-4 h-4 text-emerald-600"></i>
+            <span>Pure Veg, Mild & Spicy filters</span>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="bg-stone-50/80 rounded-3xl p-8 border border-stone-200/80 space-y-4 hover:shadow-card hover:-translate-y-1 transition-all duration-300">
+          <div class="w-12 h-12 rounded-2xl bg-brand-600 text-white font-black text-lg flex items-center justify-center shadow-md shadow-brand-500/20">
+            03
+          </div>
+          <h3 class="text-lg font-bold text-stone-900">Track Live Preparation</h3>
+          <p class="text-sm text-stone-600 leading-relaxed">
+            Pay with your preferred UPI app or card. Your kitchen ticket is queued immediately, and your live status bar shows when your dish is cooking and ready to serve.
+          </p>
+          <div class="pt-2 text-xs font-bold text-stone-500 flex items-center gap-1.5">
+            <i data-lucide="check" class="w-4 h-4 text-emerald-600"></i>
+            <span>Digital receipt with return discount</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 3 Dining Choices: Dine-In, Takeaway, Delivery -->
+  <section id="dining-modes" class="py-20 bg-stone-50 border-b border-stone-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3 py-1 rounded-full border border-brand-200">Flexibility</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-stone-900 mt-3 tracking-tight">Three Ways to Enjoy Your Meal</h2>
+        <p class="text-stone-600 text-sm mt-3 leading-relaxed">Whether you're sitting with friends, picking up on your commute, or dining at home.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Mode 1: Dine-In -->
+        <div class="bg-white p-7 rounded-3xl border border-stone-200 shadow-soft hover:shadow-card transition-all space-y-4">
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
+            <i data-lucide="utensils-crossed" class="w-6 h-6"></i>
+          </div>
+          <div class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">At the Table</div>
+          <h3 class="text-xl font-bold text-stone-900">Dine-In Experience</h3>
+          <p class="text-xs text-stone-600 leading-relaxed">
+            Sit at any open table, select your table number or party size (1 to 6+ guests), and order as you go. No rushing, no awkward waving for the bill.
+          </p>
+          <ul class="text-xs text-stone-600 space-y-2 pt-2 border-t border-stone-100">
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span>Immediate table ordering</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span>Advance table booking with arrival slot</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Mode 2: Takeaway -->
+        <div class="bg-white p-7 rounded-3xl border border-stone-200 shadow-soft hover:shadow-card transition-all space-y-4">
+          <div class="w-12 h-12 rounded-2xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-700">
+            <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+          </div>
+          <div class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800">Grab & Go</div>
+          <h3 class="text-xl font-bold text-stone-900">Counter Takeaway</h3>
+          <p class="text-xs text-stone-600 leading-relaxed">
+            Order ahead while heading to our cafe. Your food is packed fresh and waiting hot at Counter #1 the moment you step in.
+          </p>
+          <ul class="text-xs text-stone-600 space-y-2 pt-2 border-t border-stone-100">
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span>15–20 minute rapid preparation</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span>Schedule pickup for later lunch or dinner</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Mode 3: Delivery -->
+        <div class="bg-white p-7 rounded-3xl border border-stone-200 shadow-soft hover:shadow-card transition-all space-y-4">
+          <div class="w-12 h-12 rounded-2xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-700">
+            <i data-lucide="truck" class="w-6 h-6"></i>
+          </div>
+          <div class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-100 text-purple-800">To Your Door</div>
+          <h3 class="text-xl font-bold text-stone-900">Local Delivery</h3>
+          <p class="text-xs text-stone-600 leading-relaxed">
+            Doorstep delivery across Connaught Place, Barakhamba Road, Janpath, and KG Marg. Fair transparent pricing with no hidden service charges.
+          </p>
+          <ul class="text-xs text-stone-600 space-y-2 pt-2 border-t border-stone-100">
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span>Use Current Location or quick neighborhood chips</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span>Advance scheduled delivery windows</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Four Breakthrough Features Showcase -->
+  <section id="bharat-innovations" class="py-20 bg-gradient-to-b from-stone-50 via-white to-stone-50 border-b border-stone-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">Next-Gen Food Intelligence</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-stone-900 mt-3 tracking-tight">Four Revolutionary Engines Built for Bharat</h2>
+        <p class="text-stone-600 text-sm mt-3 leading-relaxed">
+          Transforming local restaurant economics with food waste prediction, zero-cost WhatsApp marketing, campus group discounts, and zero-internet offline reliability.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <!-- Feature 1: AI Waste-to-Profit Engine -->
+        <div class="bg-white p-7 rounded-3xl border-2 border-emerald-500/30 hover:border-emerald-500 shadow-soft hover:shadow-card transition-all space-y-4 group">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
+            <i data-lucide="leaf" class="w-6 h-6"></i>
+          </div>
+          <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-900">Sustainability</span>
+          <h3 class="text-lg font-black text-stone-900">AI Waste-to-Profit Engine</h3>
+          <p class="text-xs text-stone-600 leading-relaxed">
+            Predicts daily food consumption and detects surplus kitchen batches nearing shift end. Suggests dynamic 25%–50% flash discounts to recover revenue, feed diners, and prevent food waste.
+          </p>
+          <div class="pt-2 border-t border-stone-100 flex items-center justify-between text-[11px] font-bold text-emerald-700">
+            <span>🌱 CO₂ Avoided Tracking</span>
+            <span>Flash Deals</span>
+          </div>
+        </div>
+
+        <!-- Feature 2: AI Marketing Autopilot -->
+        <div class="bg-white p-7 rounded-3xl border-2 border-orange-500/30 hover:border-orange-500 shadow-soft hover:shadow-card transition-all space-y-4 group">
+          <div class="w-12 h-12 rounded-2xl bg-orange-50 text-orange-700 flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
+            <i data-lucide="send" class="w-6 h-6"></i>
+          </div>
+          <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-orange-100 text-orange-900">Customer Retention</span>
+          <h3 class="text-lg font-black text-stone-900">AI Marketing Autopilot</h3>
+          <p class="text-xs text-stone-600 leading-relaxed">
+            Autonomous RFM segmentation detects churn risk, VIP loyalists, and chai regulars. Crafts personalized WhatsApp offers with 1-click click-to-chat links and automated promo codes.
+          </p>
+          <div class="pt-2 border-t border-stone-100 flex items-center justify-between text-[11px] font-bold text-orange-700">
+            <span>💬 Direct WhatsApp Link</span>
+            <span>Zero Ad Spend</span>
+          </div>
+        </div>
+
+        <!-- Feature 3: Group Hunger Network -->
+        <div class="bg-white p-7 rounded-3xl border-2 border-amber-500/30 hover:border-amber-500 shadow-soft hover:shadow-card transition-all space-y-4 group">
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
+            <i data-lucide="users-round" class="w-6 h-6"></i>
+          </div>
+          <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-100 text-amber-900">Social Ordering</span>
+          <h3 class="text-lg font-black text-stone-900">Group Hunger Network</h3>
+          <p class="text-xs text-stone-600 leading-relaxed">
+            Allows college hostels, PG students, and tech park teams to combine food orders into a shared pool. Unlocks tiered group discounts (10%, 15%, 25%) with live countdown timers and split bills.
+          </p>
+          <div class="pt-2 border-t border-stone-100 flex items-center justify-between text-[11px] font-bold text-amber-700">
+            <span>🎓 Hostel & Office Pools</span>
+            <span>Up to 25% OFF</span>
+          </div>
+        </div>
+
+        <!-- Feature 4: Offline-First Bharat Mode -->
+        <div class="bg-white p-7 rounded-3xl border-2 border-brand-500/30 hover:border-brand-500 shadow-soft hover:shadow-card transition-all space-y-4 group">
+          <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-700 flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
+            <i data-lucide="wifi" class="w-6 h-6"></i>
+          </div>
+          <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-brand-100 text-brand-900">Zero Internet</span>
+          <h3 class="text-lg font-black text-stone-900">Offline-First Bharat Mode</h3>
+          <p class="text-xs text-stone-600 leading-relaxed">
+            Full menu browsing and order placement without internet connectivity. Orders queue locally in SQLite WAL / IndexedDB and automatically sync to the kitchen cookline the moment network returns.
+          </p>
+          <div class="pt-2 border-t border-stone-100 flex items-center justify-between text-[11px] font-bold text-brand-700">
+            <span>🗣️ 8 Languages & Voice</span>
+            <span>Background Sync</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Popular Specials Showcase -->
+  <section id="popular-dishes" class="py-20 bg-white border-b border-stone-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-14">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3 py-1 rounded-full border border-brand-200">Chef Specials</span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-stone-900 mt-3 tracking-tight">Guest Favorites from Our Kitchen</h2>
+          <p class="text-stone-600 text-sm mt-2">Cooked live using time-honored Indian recipes and pure ingredients.</p>
+        </div>
+        <a href="/" class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 hover:text-brand-700 hover:underline">
+          <span>See all 22 menu dishes</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <!-- Dish 1 -->
+        <div class="bg-[#FAF8F5] rounded-3xl border border-stone-200/90 overflow-hidden shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300 flex flex-col">
+          <div class="h-44 w-full overflow-hidden relative">
+            <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=500&auto=format&fit=crop&q=60" alt="Masala Chai" class="w-full h-full object-cover">
+            <span class="absolute top-3 left-3 px-2.5 py-1 bg-stone-900/80 backdrop-blur-md text-white text-[10px] font-bold rounded-full">Bestseller</span>
+            <span class="absolute top-3 right-3 px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-full">Pure Veg</span>
+          </div>
+          <div class="p-5 flex-1 flex flex-col justify-between space-y-3">
+            <div>
+              <div class="flex justify-between items-baseline">
+                <h3 class="text-base font-bold text-stone-900">Masala Special Tapri Chai</h3>
+                <span class="font-extrabold text-brand-600 text-base">₹35</span>
+              </div>
+              <p class="text-xs text-stone-500 mt-1.5 leading-relaxed">
+                Slow-brewed strong Assam tea with crushed ginger, green cardamom, and aromatic cloves. Served piping hot.
+              </p>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-stone-500 pt-2 border-t border-stone-200/60">
+              <span>90 kcal</span>
+              <span class="text-amber-700 font-semibold">Medium Spice</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dish 2 -->
+        <div class="bg-[#FAF8F5] rounded-3xl border border-stone-200/90 overflow-hidden shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300 flex flex-col">
+          <div class="h-44 w-full overflow-hidden relative">
+            <img src="https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=500&auto=format&fit=crop&q=60" alt="Bombay Pav Bhaji" class="w-full h-full object-cover">
+            <span class="absolute top-3 left-3 px-2.5 py-1 bg-stone-900/80 backdrop-blur-md text-white text-[10px] font-bold rounded-full">Chef Signature</span>
+            <span class="absolute top-3 right-3 px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-full">Pure Veg</span>
+          </div>
+          <div class="p-5 flex-1 flex flex-col justify-between space-y-3">
+            <div>
+              <div class="flex justify-between items-baseline">
+                <h3 class="text-base font-bold text-stone-900">Bombay Pav Bhaji</h3>
+                <span class="font-extrabold text-brand-600 text-base">₹150</span>
+              </div>
+              <p class="text-xs text-stone-500 mt-1.5 leading-relaxed">
+                Slow-simmered mashed vegetables with authentic spices, Amul butter, and toasted soft pav rolls.
+              </p>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-stone-500 pt-2 border-t border-stone-200/60">
+              <span>420 kcal</span>
+              <span class="text-red-700 font-semibold">Spicy Kick</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dish 3 -->
+        <div class="bg-[#FAF8F5] rounded-3xl border border-stone-200/90 overflow-hidden shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300 flex flex-col">
+          <div class="h-44 w-full overflow-hidden relative">
+            <img src="https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=500&auto=format&fit=crop&q=60" alt="Hyderabadi Biryani" class="w-full h-full object-cover">
+            <span class="absolute top-3 left-3 px-2.5 py-1 bg-stone-900/80 backdrop-blur-md text-white text-[10px] font-bold rounded-full">Slow-Cooked</span>
+            <span class="absolute top-3 right-3 px-2 py-0.5 bg-amber-700 text-white text-[10px] font-bold rounded-full">Dum Cooked</span>
+          </div>
+          <div class="p-5 flex-1 flex flex-col justify-between space-y-3">
+            <div>
+              <div class="flex justify-between items-baseline">
+                <h3 class="text-base font-bold text-stone-900">Hyderabadi Dum Biryani</h3>
+                <span class="font-extrabold text-brand-600 text-base">₹220</span>
+              </div>
+              <p class="text-xs text-stone-500 mt-1.5 leading-relaxed">
+                Long-grain aged basmati rice infused with saffron, caramelized onions, and whole spices served with chilled burani raita.
+              </p>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-stone-500 pt-2 border-t border-stone-200/60">
+              <span>550 kcal</span>
+              <span class="text-amber-700 font-semibold">Medium Spice</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dish 4 -->
+        <div class="bg-[#FAF8F5] rounded-3xl border border-stone-200/90 overflow-hidden shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300 flex flex-col">
+          <div class="h-44 w-full overflow-hidden relative">
+            <img src="https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=500&auto=format&fit=crop&q=60" alt="Artisanal Dahi Puri" class="w-full h-full object-cover">
+            <span class="absolute top-3 left-3 px-2.5 py-1 bg-stone-900/80 backdrop-blur-md text-white text-[10px] font-bold rounded-full">Crispy Chaat</span>
+            <span class="absolute top-3 right-3 px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-full">Pure Veg</span>
+          </div>
+          <div class="p-5 flex-1 flex flex-col justify-between space-y-3">
+            <div>
+              <div class="flex justify-between items-baseline">
+                <h3 class="text-base font-bold text-stone-900">Artisanal Dahi Puri</h3>
+                <span class="font-extrabold text-brand-600 text-base">₹110</span>
+              </div>
+              <p class="text-xs text-stone-500 mt-1.5 leading-relaxed">
+                Crispy hollow puris filled with spiced potatoes, sweet chilled yogurt, tamarind reduction, and crunchy nylon sev.
+              </p>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-stone-500 pt-2 border-t border-stone-200/60">
+              <span>280 kcal</span>
+              <span class="text-emerald-700 font-semibold">Sweet & Tangy</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Interactive Guest Experience Showcase -->
+  <section id="experience" class="py-20 bg-stone-50 border-b border-stone-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3 py-1 rounded-full border border-brand-200">Thoughtful Dining</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-stone-900 mt-3 tracking-tight">Built to Make Dining Effortless</h2>
+        <p class="text-stone-600 text-sm mt-3 leading-relaxed">Explore the interactive tools designed to give you total control over your meal.</p>
+      </div>
+
+      <!-- Experience Tab Selector -->
+      <div class="flex justify-center mb-8">
+        <div class="inline-flex bg-stone-200/80 p-1.5 rounded-2xl gap-1">
+          <button onclick="selectShowcase('menu')" id="showcaseTabMenu" class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all bg-white text-stone-900 shadow-sm">
+            <i data-lucide="eye" class="w-4 h-4 text-brand-600"></i>
+            <span>Visual Dish Details</span>
+          </button>
+          <button onclick="selectShowcase('schedule')" id="showcaseTabSchedule" class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-stone-600 hover:text-stone-900 transition-all">
+            <i data-lucide="calendar" class="w-4 h-4 text-sky-600"></i>
+            <span>Table Reservations</span>
+          </button>
+          <button onclick="selectShowcase('assistant')" id="showcaseTabAssistant" class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-stone-600 hover:text-stone-900 transition-all">
+            <i data-lucide="message-square" class="w-4 h-4 text-emerald-600"></i>
+            <span>Dining Concierge</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Container Box -->
+      <div class="bg-white rounded-3xl border border-stone-200 p-6 sm:p-10 shadow-soft">
+        
+        <!-- View 1: Dish Transparency -->
+        <div id="previewMenu" class="space-y-6">
+          <div class="flex items-center justify-between border-b border-stone-100 pb-4">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+              <span class="text-xs font-bold text-stone-700">Complete Dish Transparency</span>
+            </div>
+            <span class="text-xs font-bold text-brand-600">No Hidden Ingredients</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <div class="rounded-2xl overflow-hidden border border-stone-200 shadow-sm">
+              <img src="https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=500&auto=format&fit=crop&q=60" alt="Pav Bhaji" class="w-full h-44 object-cover">
+            </div>
+            <div class="md:col-span-2 space-y-3">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 bg-emerald-50 text-emerald-800 text-[11px] font-bold rounded-full border border-emerald-200">Pure Veg</span>
+                <span class="px-2.5 py-1 bg-amber-50 text-amber-800 text-[11px] font-bold rounded-full border border-amber-200">Spicy Kick</span>
+                <span class="px-2.5 py-1 bg-stone-100 text-stone-700 text-[11px] font-bold rounded-full">420 kcal</span>
+              </div>
+              <h3 class="text-lg font-extrabold text-stone-900">Bombay Pav Bhaji</h3>
+              <p class="text-xs text-stone-600 leading-relaxed">
+                Made with freshly mashed potatoes, cauliflower, green peas, and vine tomatoes. Simmered in butter with authentic Mumbai spices. Served with toasted butter pav and lemon wedges.
+              </p>
+              <div class="text-[11px] text-stone-500 bg-stone-50 p-3 rounded-xl border border-stone-200/80">
+                <strong class="text-stone-700">Allergen Notice:</strong> Contains Dairy (Butter, Ghee) and Gluten (Pav Bread). Garlic-free option available upon request.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- View 2: Advance Slot Scheduling -->
+        <div id="previewSchedule" class="hidden space-y-6">
+          <div class="flex items-center justify-between border-b border-stone-100 pb-4">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-sky-500"></span>
+              <span class="text-xs font-bold text-stone-700">Never Wait for a Table</span>
+            </div>
+            <span class="text-xs font-bold text-sky-600">30-Minute Guaranteed Windows</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-stone-50 p-4 rounded-2xl border border-stone-200 space-y-2">
+              <div class="text-xs font-bold text-stone-500 uppercase">1. Pick Date</div>
+              <div class="flex gap-2">
+                <span class="px-3 py-1.5 bg-brand-600 text-white text-xs font-bold rounded-xl shadow-sm">Today</span>
+                <span class="px-3 py-1.5 bg-white border border-stone-200 text-stone-700 text-xs font-bold rounded-xl">Tomorrow</span>
+              </div>
+            </div>
+
+            <div class="bg-stone-50 p-4 rounded-2xl border border-stone-200 space-y-2">
+              <div class="text-xs font-bold text-stone-500 uppercase">2. Select Party Size</div>
+              <div class="flex gap-1.5 text-xs font-bold">
+                <span class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center">1</span>
+                <span class="w-8 h-8 rounded-lg bg-brand-600 text-white flex items-center justify-center shadow-sm">2</span>
+                <span class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center">4</span>
+                <span class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center">6+</span>
+              </div>
+            </div>
+
+            <div class="bg-stone-50 p-4 rounded-2xl border border-stone-200 space-y-2">
+              <div class="text-xs font-bold text-stone-500 uppercase">3. Choose Arrival Slot</div>
+              <div class="text-xs font-bold text-stone-800 bg-white border border-stone-200 px-3 py-1.5 rounded-xl flex items-center justify-between">
+                <span>13:00 - 13:30 (Lunch)</span>
+                <span class="text-emerald-600 font-extrabold text-[10px]">Open</span>
+              </div>
+            </div>
+          </div>
+          <p class="text-xs text-stone-500 text-center">Your table is pre-allocated and kitchen prep starts so dishes arrive freshly cooked right as you sit down.</p>
+        </div>
+
+        <!-- View 3: Smart Dining Assistant -->
+        <div id="previewAssistant" class="hidden space-y-6">
+          <div class="flex items-center justify-between border-b border-stone-100 pb-4">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+              <span class="text-xs font-bold text-stone-700">Digital Dining Concierge</span>
+            </div>
+            <span class="text-xs font-bold text-emerald-600">Available on Storefront</span>
+          </div>
+
+          <div class="space-y-3 max-w-xl mx-auto">
+            <div class="flex gap-2.5">
+              <div class="w-7 h-7 rounded-full bg-stone-800 text-white flex items-center justify-center font-bold text-xs">U</div>
+              <div class="bg-stone-100 text-stone-800 px-4 py-2 rounded-2xl text-xs max-w-sm">
+                What are your vegetarian chaat specials and what tea pairs best with them?
+              </div>
+            </div>
+
+            <div class="flex gap-2.5 flex-row-reverse">
+              <div class="w-7 h-7 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-xs">RL</div>
+              <div class="bg-brand-50 border border-brand-200 text-brand-950 px-4 py-3 rounded-2xl text-xs max-w-md space-y-1.5 shadow-sm">
+                <p>Our Artisanal Dahi Puri (₹110) and Mumbai Pav Bhaji (₹150) are both pure veg favorites! They pair perfectly with our slow-simmered Masala Cutting Chai (₹35).</p>
+                <p class="font-bold text-brand-700">Would you like me to add these to your order tray?</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Diner Club & Regular Loyalty Perks -->
+  <section id="loyalty" class="py-20 bg-white border-b border-stone-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3 py-1 rounded-full border border-brand-200">Reward Tiers</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-stone-900 mt-3 tracking-tight">The More You Visit, The More You Save</h2>
+        <p class="text-stone-600 text-sm mt-3 leading-relaxed">Our frequency engine automatically recognizes your phone number and unlocks progressive discounts.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <!-- Tier 1 -->
+        <div class="bg-stone-50 p-6 rounded-3xl border border-stone-200/90 text-center space-y-3 hover:shadow-card hover:-translate-y-1 transition-all">
+          <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 mx-auto flex items-center justify-center font-bold">
+            <i data-lucide="sparkles" class="w-6 h-6"></i>
+          </div>
+          <span class="inline-block px-3 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-200 text-amber-900">First Visit</span>
+          <h3 class="text-xl font-black text-stone-900">WELCOME50</h3>
+          <p class="text-xs text-stone-600">Flat ₹50 OFF your first order of ₹200 or more. Our welcome treat to you!</p>
+        </div>
+
+        <!-- Tier 2 -->
+        <div class="bg-stone-50 p-6 rounded-3xl border border-stone-200/90 text-center space-y-3 hover:shadow-card hover:-translate-y-1 transition-all">
+          <div class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-800 mx-auto flex items-center justify-center font-bold">
+            <i data-lucide="repeat" class="w-6 h-6"></i>
+          </div>
+          <span class="inline-block px-3 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-sky-200 text-sky-900">1+ Past Orders</span>
+          <h3 class="text-xl font-black text-stone-900">REPEAT15</h3>
+          <p class="text-xs text-stone-600">Enjoy 15% OFF your meal on your second and third orders with us.</p>
+        </div>
+
+        <!-- Tier 3 -->
+        <div class="bg-stone-50 p-6 rounded-3xl border border-stone-200/90 text-center space-y-3 hover:shadow-card hover:-translate-y-1 transition-all">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 mx-auto flex items-center justify-center font-bold">
+            <i data-lucide="heart" class="w-6 h-6"></i>
+          </div>
+          <span class="inline-block px-3 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-200 text-emerald-900">3+ Past Orders</span>
+          <h3 class="text-xl font-black text-stone-900">REGULAR20</h3>
+          <p class="text-xs text-stone-600">Unlocked for our regular patrons: 20% OFF every order over ₹200.</p>
+        </div>
+
+        <!-- Tier 4 -->
+        <div class="bg-stone-50 p-6 rounded-3xl border border-stone-200/90 text-center space-y-3 hover:shadow-card hover:-translate-y-1 transition-all">
+          <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-800 mx-auto flex items-center justify-center font-bold">
+            <i data-lucide="crown" class="w-6 h-6"></i>
+          </div>
+          <span class="inline-block px-3 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-purple-200 text-purple-900">5+ Past Orders</span>
+          <h3 class="text-xl font-black text-stone-900">VIP25</h3>
+          <p class="text-xs text-stone-600">Our VIP Club perk: 25% OFF your favorite dishes on every visit.</p>
+        </div>
+
+      </div>
+
+      <div class="mt-8 text-center bg-amber-50 border border-amber-200 rounded-2xl p-4 max-w-2xl mx-auto text-xs text-amber-900 font-medium">
+        Every completed receipt also issues an automated single-use 7-day bounce-back code for ₹50 OFF your next order!
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Our Culinary Story & Founders Attribution -->
+  <section id="story" class="py-20 bg-stone-50 border-b border-stone-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3 py-1 rounded-full border border-brand-200">Authenticity</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-stone-900 mt-3 tracking-tight">Crafted by Team TrueAddams</h2>
+        <p class="text-stone-600 text-sm mt-3 leading-relaxed">Dedicated to bringing authentic Indian comfort food and thoughtful dining hospitality to every table.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        
+        <!-- Member 1: Leader -->
+        <div class="bg-white p-6 rounded-3xl border-2 border-brand-500 text-center space-y-3 shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300 relative">
+          <div class="w-16 h-16 rounded-2xl bg-brand-600 mx-auto flex items-center justify-center text-white font-extrabold text-xl shadow-md shadow-brand-500/20">
+            AS
+          </div>
+          <div>
+            <span class="inline-block text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-brand-100 text-brand-800 mb-1">Team Leader</span>
+            <h3 class="text-base font-extrabold text-stone-900">Akshdeep Singh</h3>
+            <div class="text-xs text-stone-500 mt-1">Platform Architecture, Experience Design & Operations</div>
+          </div>
+        </div>
+
+        <!-- Member 2 -->
+        <div class="bg-white p-6 rounded-3xl border border-stone-200 text-center space-y-3 shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300">
+          <div class="w-16 h-16 rounded-2xl bg-stone-800 text-white mx-auto flex items-center justify-center font-extrabold text-xl shadow-sm">
+            PG
+          </div>
+          <div>
+            <span class="inline-block text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 mb-1">Core Contributor</span>
+            <h3 class="text-base font-extrabold text-stone-900">Paras Gupta</h3>
+            <div class="text-xs text-stone-500 mt-1">Guest Interface, Visual Identity & Modern Styling</div>
+          </div>
+        </div>
+
+        <!-- Member 3 -->
+        <div class="bg-white p-6 rounded-3xl border border-stone-200 text-center space-y-3 shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300">
+          <div class="w-16 h-16 rounded-2xl bg-stone-800 text-white mx-auto flex items-center justify-center font-extrabold text-xl shadow-sm">
+            PP
+          </div>
+          <div>
+            <span class="inline-block text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 mb-1">Core Contributor</span>
+            <h3 class="text-base font-extrabold text-stone-900">Prince Pratik</h3>
+            <div class="text-xs text-stone-500 mt-1">Interactive Concierge, Food Pairings & Recommendations</div>
+          </div>
+        </div>
+
+        <!-- Member 4 -->
+        <div class="bg-white p-6 rounded-3xl border border-stone-200 text-center space-y-3 shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300">
+          <div class="w-16 h-16 rounded-2xl bg-stone-800 text-white mx-auto flex items-center justify-center font-extrabold text-xl shadow-sm">
+            AS
+          </div>
+          <div>
+            <span class="inline-block text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 mb-1">Core Contributor</span>
+            <h3 class="text-base font-extrabold text-stone-900">Akashdeep Singh</h3>
+            <div class="text-xs text-stone-500 mt-1">Kitchen Workflows, Quality Assurance & Guest Support</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Guest FAQ (Normal Consumer Questions) -->
+  <section id="faq" class="py-20 bg-white border-b border-stone-200">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center mb-16">
+        <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3 py-1 rounded-full border border-brand-200">Helpful Answers</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-stone-900 mt-3 tracking-tight">Frequently Asked Questions</h2>
+        <p class="text-stone-600 text-sm mt-2">Everything you need to know about dining and ordering with us.</p>
+      </div>
+
+      <div class="space-y-4">
+        
+        <div class="bg-stone-50 p-6 rounded-2xl border border-stone-200">
+          <button onclick="toggleFaq(1)" class="w-full flex items-center justify-between text-left font-bold text-sm text-stone-900">
+            <span>Do I need to download an app or create an account to order?</span>
+            <i id="faqIcon-1" data-lucide="chevron-down" class="w-4 h-4 text-stone-500 transition-transform"></i>
+          </button>
+          <div id="faqContent-1" class="hidden mt-3 text-xs text-stone-600 leading-relaxed border-t border-stone-200 pt-3">
+            No app download is required. Simply scan the QR code on your table or open the link on your phone. The menu opens immediately in your browser with zero installation.
+          </div>
+        </div>
+
+        <div class="bg-stone-50 p-6 rounded-2xl border border-stone-200">
+          <button onclick="toggleFaq(2)" class="w-full flex items-center justify-between text-left font-bold text-sm text-stone-900">
+            <span>Can I customize my order, spice levels, or skip plastic cutlery?</span>
+            <i id="faqIcon-2" data-lucide="chevron-down" class="w-4 h-4 text-stone-500 transition-transform"></i>
+          </button>
+          <div id="faqContent-2" class="hidden mt-3 text-xs text-stone-600 leading-relaxed border-t border-stone-200 pt-3">
+            Yes! Every item displays clear spice indicators (Mild, Medium, Spicy). You can add cooking notes (e.g. extra ginger, less chili) and toggle "Green Dining" to skip disposable plastic cutlery.
+          </div>
+        </div>
+
+        <div class="bg-stone-50 p-6 rounded-2xl border border-stone-200">
+          <button onclick="toggleFaq(3)" class="w-full flex items-center justify-between text-left font-bold text-sm text-stone-900">
+            <span>How does advance table reservation work?</span>
+            <i id="faqIcon-3" data-lucide="chevron-down" class="w-4 h-4 text-stone-500 transition-transform"></i>
+          </button>
+          <div id="faqContent-3" class="hidden mt-3 text-xs text-stone-600 leading-relaxed border-t border-stone-200 pt-3">
+            Choose Dine-In mode, select your preferred date (Today or Tomorrow) and arrival slot (in 30-minute intervals). Your table is reserved, and your food starts cooking right before you arrive.
+          </div>
+        </div>
+
+        <div class="bg-stone-50 p-6 rounded-2xl border border-stone-200">
+          <button onclick="toggleFaq(4)" class="w-full flex items-center justify-between text-left font-bold text-sm text-stone-900">
+            <span>What payment methods are supported?</span>
+            <i id="faqIcon-4" data-lucide="chevron-down" class="w-4 h-4 text-stone-500 transition-transform"></i>
+          </button>
+          <div id="faqContent-4" class="hidden mt-3 text-xs text-stone-600 leading-relaxed border-t border-stone-200 pt-3">
+            We support instant digital checkout via all UPI apps (Google Pay, PhonePe, Paytm, Cred), Debit and Credit Cards, and Cash at the counter.
+          </div>
+        </div>
+
+        <div class="bg-stone-50 p-6 rounded-2xl border border-stone-200">
+          <button onclick="toggleFaq(5)" class="w-full flex items-center justify-between text-left font-bold text-sm text-stone-900">
+            <span>Where is your cafe located and what are your opening hours?</span>
+            <i id="faqIcon-5" data-lucide="chevron-down" class="w-4 h-4 text-stone-500 transition-transform"></i>
+          </button>
+          <div id="faqContent-5" class="hidden mt-3 text-xs text-stone-600 leading-relaxed border-t border-stone-200 pt-3">
+            We are located in Connaught Place, Inner Circle, New Delhi. We are open 7 days a week from 10:00 AM to 11:00 PM for Dine-In, Counter Takeaway, and Local Neighborhood Delivery.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Final Clean Call to Action -->
+  <section class="py-24 bg-stone-900 text-white text-center">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <span class="text-xs font-bold uppercase tracking-wider text-brand-400 bg-brand-950/60 border border-brand-800/60 px-3.5 py-1.5 rounded-full">Fresh Everyday</span>
+      <h2 class="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight">Ready for a Delicious Meal?</h2>
+      <p class="text-stone-300 text-base max-w-xl mx-auto">Browse our full 22-dish menu, customize your order, or reserve a table with zero markups.</p>
+      
+      <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <a href="/" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-sm font-extrabold text-white bg-brand-600 hover:bg-brand-500 shadow-xl shadow-brand-500/30 hover:-translate-y-0.5 transition-all">
+          <i data-lucide="utensils" class="w-4 h-4"></i>
+          <span>Open Online Menu & Order</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+        <a href="/kitchen.html" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-sm font-bold text-stone-300 bg-stone-800 hover:bg-stone-700 border border-stone-700 hover:-translate-y-0.5 transition-all">
+          <i data-lucide="shield-check" class="w-4 h-4 text-brand-400"></i>
+          <span>Staff & Operations Portal</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Clean Minimal Footer -->
+  <footer class="border-t border-stone-200 py-12 bg-white text-xs text-stone-500 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+      
+      <div class="flex items-center gap-3">
+        <div class="w-7 h-7 rounded-lg bg-brand-600 text-white flex items-center justify-center">
+          <i data-lucide="utensils" class="w-4 h-4"></i>
+        </div>
+        <span class="font-bold text-stone-900">RasoiLink Artisanal Cafe</span>
+        <span>•</span>
+        <span>Engineered by Team TrueAddams</span>
+      </div>
+
+      <div class="flex items-center gap-6 font-semibold text-stone-600">
+        <a href="/" class="hover:text-stone-900 transition-colors">Menu & Ordering</a>
+        <a href="/?table=5" class="hover:text-stone-900 transition-colors">Table Dine-In</a>
+        <a href="/kitchen.html" class="hover:text-stone-900 transition-colors">Staff Portal</a>
+        <a href="https://github.com/akshdeepsingh7/RasoiLink" target="_blank" rel="noopener noreferrer" class="hover:text-stone-900 transition-colors inline-flex items-center gap-1.5">
+          <i data-lucide="github" class="w-3.5 h-3.5"></i>
+          <span>GitHub</span>
+        </a>
+      </div>
+
+      <div>
+        Connaught Place, New Delhi • 2026 RasoiLink
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Scripts: Interactive Tabs & FAQ Toggle -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    });
+
+    // Showcase tab switching
+    function selectShowcase(tab) {
+      const views = ['Menu', 'Schedule', 'Assistant'];
+      views.forEach(v => {
+        const previewEl = document.getElementById('preview' + v);
+        const tabEl = document.getElementById('showcaseTab' + v);
+        if (v.toLowerCase() === tab.toLowerCase()) {
+          if (previewEl) previewEl.classList.remove('hidden');
+          if (tabEl) tabEl.className = 'flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all bg-white text-stone-900 shadow-sm';
+        } else {
+          if (previewEl) previewEl.classList.add('hidden');
+          if (tabEl) tabEl.className = 'flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-stone-600 hover:text-stone-900 transition-all';
+        }
+      });
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    // FAQ Toggle
+    function toggleFaq(idx) {
+      const content = document.getElementById('faqContent-' + idx);
+      const icon = document.getElementById('faqIcon-' + idx);
+      if (!content || !icon) return;
+      if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        icon.classList.add('rotate-180');
+      } else {
+        content.classList.add('hidden');
+        icon.classList.remove('rotate-180');
+      }
+    }
+
+    // Mobile Navigation Drawer Toggle
+    function toggleLandingMobileMenu() {
+      const backdrop = document.getElementById('landingMobileBackdrop');
+      const drawer = document.getElementById('landingMobileDrawer');
+      if (backdrop && drawer) {
+        const isOpen = drawer.classList.contains('translate-x-0');
+        if (isOpen) {
+          drawer.classList.remove('translate-x-0');
+          drawer.classList.add('translate-x-full');
+          backdrop.classList.remove('opacity-100', 'pointer-events-auto');
+          backdrop.classList.add('opacity-0', 'pointer-events-none');
+          document.body.classList.remove('overflow-hidden');
+        } else {
+          drawer.classList.remove('translate-x-full');
+          drawer.classList.add('translate-x-0');
+          backdrop.classList.remove('opacity-0', 'pointer-events-none');
+          backdrop.classList.add('opacity-100', 'pointer-events-auto');
+          document.body.classList.add('overflow-hidden');
+        }
+      }
+    }
+  </script>
+</body>
+</html>
